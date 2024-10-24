@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories/" />
+    <ProjectReference Include="..\ManagementLibrarySystem.Domain\ManagementLibrarySystem.Domain.csproj" />
+    <ProjectReference Include="..\ManagementLibrarySystem.Infrastructure.EFCore\ManagementLibrarySystem.Infrastructure.EFCore.csproj" />
   </ItemGroup>
 
 </Project>
