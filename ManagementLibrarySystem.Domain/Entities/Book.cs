@@ -10,7 +10,8 @@ public class Book : Entity
     public DateTime? BorrowedDate { get; private set; }
     public Guid? BorrowedBy { get; private set; }
     public Member Member { get; set; } = null!;
-    public Guid LibraryId { get; set; }
+    public List<Library> Libraries { get; set; } = [];
+
     /// <summary>
     /// Private Cosntructor for EF Core
     /// </summary>
