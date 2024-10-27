@@ -8,7 +8,7 @@ namespace ManagementLibrarySystem.Infrastructure.Repositories;
 public class MemberRepository(DbAppContext context) : IMemberRepository
 {
     private readonly DbAppContext _context = context;
-    public async Task<Member?> AddMember(Member member)
+    public async Task<Member> AddMember(Member member)
     {
         try
         {

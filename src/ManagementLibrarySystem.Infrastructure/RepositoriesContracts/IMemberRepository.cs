@@ -10,7 +10,7 @@ public interface IMemberRepository
 
     Task<bool> DeleteMemberById(Guid id);
 
-    Task<Member?> AddMember(Member member);
+    Task<Member> AddMember(Member member);
 
     Task<List<Member>> GetAllMembers();
 }
