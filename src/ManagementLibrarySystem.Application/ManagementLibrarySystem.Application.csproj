@@ -9,13 +9,16 @@
   <ItemGroup>
     <Folder Include="CommandHandlers/" />
     <Folder Include="Commands/" />
-    <Folder Include="Queries/" />
-    <Folder Include="QueryHandlers/" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ManagementLibrarySystem.Domain\ManagementLibrarySystem.Domain.csproj" />
+    <ProjectReference Include="..\ManagementLibrarySystem.Infrastructure\ManagementLibrarySystem.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
