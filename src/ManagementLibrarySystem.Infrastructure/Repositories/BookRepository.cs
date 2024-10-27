@@ -1,5 +1,5 @@
-using LibrarySystem.Infrastructure.EFCore.DB;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Infrastructure.EFCore.DB;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using Microsoft.EntityFrameworkCore;
 namespace ManagementLibrarySystem.Infrastructure.Repositories;
@@ -7,7 +7,7 @@ namespace ManagementLibrarySystem.Infrastructure.Repositories;
 public class BookRepository(DbAppContext context) : IBookRepository
 {
     private readonly DbAppContext _context = context;
-    public async Task<Book> CreateBook(Book book)
+    public async Task<Book> AddBook(Book book)
     {
         try
         {

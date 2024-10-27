@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <Folder Include="ValueObjects/" />
+    <Folder Include="Entities/" />
+    <Folder Include="Primitives" />
   </ItemGroup>
 
 </Project>

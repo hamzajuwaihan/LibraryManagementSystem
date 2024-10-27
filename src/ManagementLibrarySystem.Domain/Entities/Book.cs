@@ -6,7 +6,7 @@ public class Book : Entity
 {
     public required string Title { get; set; }
     public required string Author { get; set; }
-    public bool IsBorrowed { get; protected set; }
+    public bool IsBorrowed { get; private set; }
     public DateTime? BorrowedDate { get; private set; }
     public Guid? BorrowedBy { get; private set; }
     public Member Member { get; set; } = null!;
@@ -27,6 +27,7 @@ public class Book : Entity
         if (BorrowedDate != null) this.BorrowedDate = BorrowedDate;
         if (Member != null) this.Member = Member;
     }
+    
     public void Update(string title, string author, bool isBorrowed, DateTime? borrowedDate, Guid? borrowedBy)
     {
         Title = title;
