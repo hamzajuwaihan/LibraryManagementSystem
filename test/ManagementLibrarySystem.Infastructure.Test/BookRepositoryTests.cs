@@ -77,7 +77,7 @@ public class BookRepositoryTests
     }
 
     //TODO: Add a test for getting all books
-    
+
     #endregion
     [Fact]
     public async Task GetBookById_ShouldReturnNullWhenBookNotFound()
@@ -109,6 +109,19 @@ public class BookRepositoryTests
         Book addedBook = await repository.AddBook(book);
 
         Assert.True(await repository.DeleteBookById(addedBook.Id));
+        Assert.Empty(await repository.GetAllBooks());
+    }
+
+    [Fact]
+    public async Task DeleteBookById_ShouldReturnFalseWhenIdIsNull()
+    {
+
+        using DbAppContext context = CreateDbContext();
+        BookRepository repository = new(context);
+
+        Guid id = Guid.Empty;
+
+        Assert.False(await repository.DeleteBookById(id));
     }
     #endregion
 }

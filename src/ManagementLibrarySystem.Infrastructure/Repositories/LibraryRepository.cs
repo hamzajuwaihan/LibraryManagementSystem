@@ -28,7 +28,7 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
     {
         Library? library = await GetLibraryById(id);
 
-        if (library == null) return false;
+        if (library is null) return false;
 
         _context.Libraries.Remove(library);
         await _context.SaveChangesAsync();

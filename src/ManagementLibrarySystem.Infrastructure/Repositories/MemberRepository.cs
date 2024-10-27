@@ -28,7 +28,7 @@ public class MemberRepository(DbAppContext context) : IMemberRepository
     {
         Member? member = await GetMemberById(id);
 
-        if (member == null) return false;
+        if (member is null) return false;
 
         _context.Members.Remove(member);
         await _context.SaveChangesAsync();
