@@ -12,5 +12,5 @@ public interface ILibraryRepository
 
     Task<List<Library>> GetAllLibraries();
 
-    Task<Library> CreateLibrary(Library library);
+    Task<Library> AddLibrary(Library library);
 }

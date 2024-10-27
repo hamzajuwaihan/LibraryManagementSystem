@@ -8,7 +8,7 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 {
     private readonly DbAppContext _context = context;
 
-    public async Task<Library> CreateLibrary(Library library)
+    public async Task<Library> AddLibrary(Library library)
     {
         try
         {
