@@ -1,4 +1,3 @@
-using System;
 using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
@@ -6,17 +5,18 @@ using MediatR;
 
 namespace ManagementLibrarySystem.Application.QueryHandlers.BookQueryHandlers;
 
-public class GetBookByIdQueryHandler(IBookRepository bookRepository) : IRequestHandler<GetBookByIdQuery, Book?>
+public class GetAllBorrowedBooksQueryHandler(IBookRepository bookRepository) : IRequestHandler<GetAllBorrowedBooksQuery, List<Book>>
 {
     private readonly IBookRepository _bookRepository = bookRepository;
 
-    public async Task<Book?> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
+
+    public async Task<List<Book>> Handle(GetAllBorrowedBooksQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await _bookRepository.GetBookById(request.BookId);
+            List<Book> borrowedBooks = await _bookRepository.GetAllBorrowedBooks();
 
-            return result;
+            return borrowedBooks;
         }
         catch (Exception e)
         {

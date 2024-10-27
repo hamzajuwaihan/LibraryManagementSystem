@@ -9,7 +9,7 @@ public class Member : Entity
     public List<Book> Books { get; private set; } = [];
     public List<Library> Libraries { get; private set; } = [];
 
-    public Member(Guid id) : base(Guid.Empty) { }
+    public Member(Guid id) : base(id) { }
 
     public Member(Guid id, string name, string email) : base(id)
     {

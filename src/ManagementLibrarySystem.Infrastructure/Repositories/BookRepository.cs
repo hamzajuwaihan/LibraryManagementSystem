@@ -41,15 +41,12 @@ public class BookRepository(DbAppContext context) : IBookRepository
         }
     }
 
-    public async Task<List<Book>> GetAllBooks()
-    {
-        return await _context.Books.ToListAsync();
-    }
+    public async Task<IEnumerable<Book>> GetAllBooks() => await _context.Books.ToListAsync();
 
-    public async Task<Book?> GetBookById(Guid id)
-    {
-        return await _context.Books.FirstOrDefaultAsync(book => book.Id == id);
-    }
+    public async Task<List<Book>> GetAllBorrowedBooks() => await _context.Books.Where(book => book.IsBorrowed).ToListAsync();
+    
+    public async Task<Book?> GetBookById(Guid id) => await _context.Books.FirstOrDefaultAsync(book => book.Id == id);
+    
 
     public async Task<Book?> UpdateBookById(Guid id, Book book)
     {

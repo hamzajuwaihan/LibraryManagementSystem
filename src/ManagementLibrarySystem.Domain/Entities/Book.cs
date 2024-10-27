@@ -16,7 +16,7 @@ public class Book : Entity
     /// Private Cosntructor for EF Core
     /// </summary>
     /// <param name="id"></param>
-    public Book(Guid id) : base(Guid.Empty) { }
+    public Book(Guid id) : base(id) { }
 
     public Book(Guid BookID, string Title, string Author, bool IsBorrowed, DateTime? BorrowedDate, Guid? BorrowedBy, Member? Member) : base(BookID)
     {
