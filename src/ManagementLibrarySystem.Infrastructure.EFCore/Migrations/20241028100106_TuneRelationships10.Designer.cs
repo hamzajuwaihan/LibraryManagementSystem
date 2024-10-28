@@ -3,6 +3,7 @@ using System;
 using ManagementLibrarySystem.Infrastructure.EFCore.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 {
     [DbContext(typeof(DbAppContext))]
-    partial class DbAppContextModelSnapshot : ModelSnapshot
+    [Migration("20241028100106_TuneRelationships10")]
+    partial class TuneRelationships10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 
                     b.HasIndex("MembersId");
 
-                    b.ToTable("LibraryMember");
+                    b.ToTable("LibraryMembers", (string)null);
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Book", b =>

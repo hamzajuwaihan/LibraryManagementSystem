@@ -1,4 +1,3 @@
-using System;
 using ManagementLibrarySystem.Application.Queries.MemberQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;

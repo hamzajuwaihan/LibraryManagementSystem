@@ -1,4 +1,3 @@
-using System;
 using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
@@ -14,7 +13,7 @@ public class GetBookByIdQueryHandler(IBookRepository bookRepository) : IRequestH
     {
         try
         {
-            var result = await _bookRepository.GetBookById(request.BookId);
+            Book? result = await _bookRepository.GetBookById(request.BookId);
 
             return result;
         }

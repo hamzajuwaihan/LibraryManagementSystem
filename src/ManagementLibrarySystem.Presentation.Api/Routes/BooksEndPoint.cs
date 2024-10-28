@@ -65,9 +65,8 @@ public static class BooksEndPoint
         group.MapGet("", async (IMediator _mediator) =>
         {
             GetAllBooksQuery query = new GetAllBooksQuery();
-            List<Book> books = await _mediator.Send(query);
 
-            books.ForEach(book => Console.WriteLine(book.Id)); // Log to confirm IDs are correct
+            List<Book> books = await _mediator.Send(query);
 
             return Results.Ok(books);
         })
@@ -87,11 +86,9 @@ public static class BooksEndPoint
 
         app.MapPost("/books/{bookId}/return", async (Guid bookId, ReturnBookCommand command, IMediator mediator) =>
         {
-
             if (bookId != command.BookId) return Results.BadRequest("Book ID in URL does not match the provided Book ID.");
 
-
-            var result = await mediator.Send(command);
+            string result = await mediator.Send(command);
 
             return Results.Ok(result);
         })
@@ -103,6 +100,25 @@ public static class BooksEndPoint
             return Results.Ok(result);
         })
         .WithTags("GetAllBorrowedBooks");
+
+        app.MapPut("/books/{bookId}", async (Guid bookId, UpdateBookByIdCommand command, IMediator mediator) =>
+        {
+            if (command.BookId != bookId) return Results.BadRequest("Book ID in path and command do not match.");
+            
+            Book updatedBook = await mediator.Send(command);
+
+            return Results.Ok(updatedBook);
+        })
+        .WithTags("Books");
+
+        app.MapPatch("/books/{bookId}", async (Guid bookId, PatchBookByIdCommand command, IMediator mediator) =>
+        {
+            if (command.BookId != bookId) return Results.BadRequest("Book ID in path and command do not match.");
+
+            Book patchedBook = await mediator.Send(command);
+            
+            return Results.Ok(patchedBook);
+        })
+        .WithTags("Books");
     }
 }
-

@@ -1,4 +1,3 @@
-using System;
 using ManagementLibrarySystem.Domain.Primitives;
 
 namespace ManagementLibrarySystem.Domain.Entities;

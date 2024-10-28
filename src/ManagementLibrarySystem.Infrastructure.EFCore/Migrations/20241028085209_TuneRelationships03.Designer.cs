@@ -3,6 +3,7 @@ using System;
 using ManagementLibrarySystem.Infrastructure.EFCore.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 {
     [DbContext(typeof(DbAppContext))]
-    partial class DbAppContextModelSnapshot : ModelSnapshot
+    [Migration("20241028085209_TuneRelationships03")]
+    partial class TuneRelationships03
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,13 +37,12 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 
                     b.HasIndex("MembersId");
 
-                    b.ToTable("LibraryMember");
+                    b.ToTable("LibraryMembers", (string)null);
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Book", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Author")
@@ -59,15 +61,16 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                     b.Property<Guid>("LibraryId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BorrowedBy");
-
-                    b.HasIndex("LibraryId");
+                    b.HasIndex("MemberId");
 
                     b.ToTable("Books");
                 });
@@ -123,18 +126,21 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Book", b =>
                 {
-                    b.HasOne("ManagementLibrarySystem.Domain.Entities.Member", null)
-                        .WithMany("Books")
-                        .HasForeignKey("BorrowedBy")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("ManagementLibrarySystem.Domain.Entities.Library", "Library")
                         .WithMany("Books")
-                        .HasForeignKey("LibraryId")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ManagementLibrarySystem.Domain.Entities.Member", "Member")
+                        .WithMany("Books")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Library");
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Library", b =>

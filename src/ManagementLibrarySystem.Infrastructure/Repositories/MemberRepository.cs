@@ -35,11 +35,7 @@ public class MemberRepository(DbAppContext context) : IMemberRepository
         return true;
     }
 
-    public async Task<List<Member>> GetAllMembers()
-    {
-        List<Member> membersList = await _context.Members.ToListAsync();
-        return membersList;
-    }
+    public async Task<List<Member>> GetAllMembers() => await _context.Members.ToListAsync();
 
     public async Task<Member?> GetMemberById(Guid id) => await _context.Members.FirstOrDefaultAsync(member => member.Id == id);
 
@@ -47,11 +43,8 @@ public class MemberRepository(DbAppContext context) : IMemberRepository
     {
         Member? existingMember = await _context.Members.FindAsync(member.Id);
 
-        if (existingMember == null)
-        {
-            return null;
-        }
-
+        if (existingMember == null) return null;
+        
         existingMember.Update(member.Name, member.Email);
 
         await _context.SaveChangesAsync();

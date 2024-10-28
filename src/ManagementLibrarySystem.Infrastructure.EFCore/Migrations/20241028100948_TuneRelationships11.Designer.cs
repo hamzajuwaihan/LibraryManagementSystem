@@ -3,6 +3,7 @@ using System;
 using ManagementLibrarySystem.Infrastructure.EFCore.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 {
     [DbContext(typeof(DbAppContext))]
-    partial class DbAppContextModelSnapshot : ModelSnapshot
+    [Migration("20241028100948_TuneRelationships11")]
+    partial class TuneRelationships11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 
                     b.HasIndex("MembersId");
 
-                    b.ToTable("LibraryMember");
+                    b.ToTable("LibraryMembers", (string)null);
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Book", b =>
@@ -128,13 +131,11 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                         .HasForeignKey("BorrowedBy")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("ManagementLibrarySystem.Domain.Entities.Library", "Library")
+                    b.HasOne("ManagementLibrarySystem.Domain.Entities.Library", null)
                         .WithMany("Books")
                         .HasForeignKey("LibraryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Library");
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Library", b =>

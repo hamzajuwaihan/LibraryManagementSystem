@@ -1,4 +1,3 @@
-using System;
 using ManagementLibrarySystem.Application.Commands.LibraryCommands;
 using ManagementLibrarySystem.Application.Queries.LibraryQueries;
 using ManagementLibrarySystem.Domain.Entities;
@@ -48,7 +47,7 @@ public static class LibraryEndPoint
 
             GetLibraryByIdQuery query = new(id);
 
-            var book = await _mediator.Send(query);
+            Library book = await _mediator.Send(query);
 
             if (book == null) return Results.NotFound();
 
@@ -70,6 +69,16 @@ public static class LibraryEndPoint
         .WithTags("Library")
         .Produces<List<Book>>(StatusCodes.Status200OK);
 
+        group.MapPost("/{libraryId:Guid}/books/{bookId:Guid}", async (Guid libraryId, Guid bookId, IMediator mediator) =>
+        {
+            AddBookToLibraryCommand command = new AddBookToLibraryCommand(libraryId, bookId);
+            bool result = await mediator.Send(command);
+
+            return result ? Results.Ok() : Results.NotFound();
+        })
+        .WithTags("Library")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound);
 
     }
 }

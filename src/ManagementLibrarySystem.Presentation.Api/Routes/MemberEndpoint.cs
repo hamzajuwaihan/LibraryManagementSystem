@@ -1,3 +1,4 @@
+using ManagementLibrarySystem.Application.Commands.LibraryMemberCommands;
 using ManagementLibrarySystem.Application.Commands.MemberCommands;
 using ManagementLibrarySystem.Application.Queries.MemberQueries;
 using ManagementLibrarySystem.Domain.Entities;
@@ -20,6 +21,7 @@ public static class MemberEndpoint
             if (command == null) return Results.BadRequest("Library data is required");
 
             Member result = await _mediator.Send(command);
+            
             return Results.Created($"/api/member/{result.Id}", result);
         })
         .WithTags("Member")
@@ -47,7 +49,7 @@ public static class MemberEndpoint
 
             GetMemberByIdQuery query = new(id);
 
-            var book = await _mediator.Send(query);
+            Member book = await _mediator.Send(query);
 
             if (book == null) return Results.NotFound();
 
@@ -60,6 +62,7 @@ public static class MemberEndpoint
         group.MapGet("", async (IMediator _mediator) =>
         {
             GetAllMembersQuery query = new GetAllMembersQuery();
+
             List<Member> members = await _mediator.Send(query);
 
             members.ForEach(library => Console.WriteLine(library.Id));
@@ -68,6 +71,21 @@ public static class MemberEndpoint
         })
         .WithTags("Member")
         .Produces<List<Book>>(StatusCodes.Status200OK);
+        
+        group.MapPost("add-library-member", async (AddLibraryMemberCommand command, IMediator _mediator) =>
+        {
+            if (command == null) return Results.BadRequest("Library and Member data are required.");
+
+            bool result = await _mediator.Send(command);
+
+            if (!result) return Results.BadRequest("Failed to add member to the library. Either the library or member does not exist, or the member is already added.");
+
+            return Results.Created($"/api/member/add-library-member", "Member added to library successfully.");
+        })
+        .WithTags("LibraryMember")
+        .Produces(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Accepts<AddLibraryMemberCommand>("application/json");
 
 
     }

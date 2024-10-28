@@ -35,28 +35,42 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
         return true;
     }
 
-    public async Task<List<Library>> GetAllLibraries()
-    {
-        List<Library> libraryList = await _context.Libraries.ToListAsync();
-        return libraryList;
-    }
-
-    public async Task<Library?> GetLibraryById(Guid id) => await _context.Libraries.FirstOrDefaultAsync(library => library.Id == id);
+    public async Task<List<Library>> GetAllLibraries() => await _context.Libraries.ToListAsync();
+    
+    public async Task<Library?> GetLibraryById(Guid id) => await _context.Libraries.Include(library => library.Books).FirstOrDefaultAsync(library => library.Id == id);
 
 
     public async Task<Library?> UpdateLibraryById(Library library)
     {
-        var existingLibrary = await _context.Libraries.FindAsync(library.Id);
+        Library? existingLibrary = await _context.Libraries.FindAsync(library.Id);
 
-        if (existingLibrary == null)
-        {
-            return null;
-        }
-
+        if (existingLibrary == null) return null;
+        
         existingLibrary.Update(library.Name);
 
         await _context.SaveChangesAsync();
 
         return existingLibrary;
+    }
+
+    public async Task<bool> AddMemberToLibrary(Guid libraryId, Guid memberId)
+    {
+
+        Library? library = await _context.Libraries
+            .Include(l => l.Members)
+            .FirstOrDefaultAsync(l => l.Id == libraryId);
+
+
+        Member? member = await _context.Members.FindAsync(memberId);
+
+        if (library == null || member == null) return false;
+
+        if (library.Members.Any(m => m.Id == memberId)) return false;
+
+        library.Members.Add(member);
+
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 }

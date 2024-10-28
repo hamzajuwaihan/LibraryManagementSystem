@@ -3,7 +3,4 @@ using MediatR;
 
 namespace ManagementLibrarySystem.Application.Queries.LibraryQueries;
 
-public class GetAllLibrariesQuery : IRequest<List<Library>>
-{
-
-}
+public class GetAllLibrariesQuery : IRequest<List<Library>> {}

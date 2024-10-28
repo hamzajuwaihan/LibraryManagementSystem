@@ -46,7 +46,23 @@ public class BookRepository(DbAppContext context) : IBookRepository
     public async Task<List<Book>> GetAllBorrowedBooks() => await _context.Books.Where(book => book.IsBorrowed).ToListAsync();
     
     public async Task<Book?> GetBookById(Guid id) => await _context.Books.FirstOrDefaultAsync(book => book.Id == id);
-    
+
+    public async Task<Book?> PatchBookById(Guid id, Book book)
+    {
+        Book? existingBook = await GetBookById(id);
+        if (existingBook == null) return null;
+
+        existingBook.Update(
+            title: !string.IsNullOrEmpty(book.Title) ? book.Title : existingBook.Title,
+            author: !string.IsNullOrEmpty(book.Author) ? book.Author : existingBook.Author,
+            isBorrowed: book.IsBorrowed,
+            borrowedDate: book.BorrowedDate ?? existingBook.BorrowedDate,
+            borrowedBy: book.BorrowedBy ?? existingBook.BorrowedBy
+        );
+
+        await _context.SaveChangesAsync();
+        return existingBook;
+    }
 
     public async Task<Book?> UpdateBookById(Guid id, Book book)
     {

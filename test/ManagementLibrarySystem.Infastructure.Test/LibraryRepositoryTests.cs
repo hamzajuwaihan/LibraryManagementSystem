@@ -16,7 +16,7 @@ public class LibraryRepositoryTests
         return new DbAppContext(options);
     }
 
-     #region AddingLibraryTests
+    #region AddingLibraryTests
     [Fact]
     public async Task CreateLibrary_ShouldAddLibraryToDatabase()
     {
@@ -111,4 +111,61 @@ public class LibraryRepositoryTests
         Assert.False(await repository.DeleteLibraryById(id));
     }
     #endregion
+
+
+    #region RelationshipTests
+    [Fact]
+    public async Task Library_ShouldHaveBooksAndMembers()
+    {
+        using DbAppContext context = CreateDbContext();
+        LibraryRepository libraryRepository = new(context);
+        MemberRepository memberRepository = new(context);
+
+
+        Library library = new(Guid.NewGuid())
+        {
+            Name = "Central Library",
+            Books = new List<Book>(),
+            Members = new List<Member>()
+        };
+
+
+        Member member = new(Guid.NewGuid())
+        {
+            Email = "test1@gmail.com",
+            Name = "John Doe"
+        };
+
+
+        Book book = new(Guid.NewGuid())
+        {
+            Author = "Hamza",
+            Title = "Sample Book",
+            BorrowedBy = member.Id
+        };
+
+
+        library.Books.Add(book);
+
+
+        library.Members.Add(member);
+
+
+        await libraryRepository.AddLibrary(library);
+
+
+        await context.SaveChangesAsync();
+
+
+        Library? retrievedLibrary = await libraryRepository.GetLibraryById(library.Id);
+        Assert.NotNull(retrievedLibrary);
+        Assert.Single(retrievedLibrary.Books);
+        Assert.Single(retrievedLibrary.Members);
+        Assert.Equal("Sample Book", retrievedLibrary.Books.First().Title);
+        Assert.Equal("John Doe", retrievedLibrary.Members.First().Name);
+    }
+    #endregion
+
+
+
 }

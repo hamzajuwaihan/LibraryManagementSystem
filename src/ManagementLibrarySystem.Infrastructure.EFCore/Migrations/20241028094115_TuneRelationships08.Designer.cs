@@ -3,6 +3,7 @@ using System;
 using ManagementLibrarySystem.Infrastructure.EFCore.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 {
     [DbContext(typeof(DbAppContext))]
-    partial class DbAppContextModelSnapshot : ModelSnapshot
+    [Migration("20241028094115_TuneRelationships08")]
+    partial class TuneRelationships08
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
 
                     b.HasIndex("MembersId");
 
-                    b.ToTable("LibraryMember");
+                    b.ToTable("LibraryMembers", (string)null);
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Book", b =>
@@ -59,6 +62,9 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                     b.Property<Guid>("LibraryId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("MemberId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -68,6 +74,8 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                     b.HasIndex("BorrowedBy");
 
                     b.HasIndex("LibraryId");
+
+                    b.HasIndex("MemberId");
 
                     b.ToTable("Books");
                 });
@@ -134,7 +142,13 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ManagementLibrarySystem.Domain.Entities.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId");
+
                     b.Navigation("Library");
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("ManagementLibrarySystem.Domain.Entities.Library", b =>

@@ -76,7 +76,34 @@ public class BookRepositoryTests
         Assert.Equal(createdBook.Author, searchBook?.Author);
     }
 
-    //TODO: Add a test for getting all books
+    [Fact]
+    public async Task GetAllBooks_ShouldReturnAllBooks()
+    {
+        using DbAppContext context = CreateDbContext();
+        BookRepository repository = new(context);
+
+        Book book1 = new Book(Guid.NewGuid())
+        {
+            Title = "Book One",
+            Author = "Author One"
+        };
+
+        Book book2 = new Book(Guid.NewGuid())
+        {
+            Title = "Book Two",
+            Author = "Author Two"
+        };
+
+        await repository.AddBook(book1);
+        await repository.AddBook(book2);
+
+        IEnumerable<Book> books = await repository.GetAllBooks();
+
+        Assert.NotNull(books);
+        Assert.Equal(2, books.Count());
+        Assert.Contains(books, b => b.Title == "Book One" && b.Author == "Author One");
+        Assert.Contains(books, b => b.Title == "Book Two" && b.Author == "Author Two");
+    }
 
     #endregion
     [Fact]
@@ -124,4 +151,65 @@ public class BookRepositoryTests
         Assert.False(await repository.DeleteBookById(id));
     }
     #endregion
+
+    #region UpdateBookTests
+    [Fact]
+    public async Task UpdateBookById_ShouldUpdateBookDetailsSuccessfully()
+    {
+        using DbAppContext context = CreateDbContext();
+        BookRepository repository = new(context);
+
+        // Arrange
+        Book book = new(Guid.NewGuid())
+        {
+            Title = "Original Title",
+            Author = "Original Author"
+        };
+
+        await repository.AddBook(book);
+
+
+        book.Update("Updated Title", "Updated Author", book.IsBorrowed, book.BorrowedDate, book.BorrowedBy);
+        Book? updatedBook = await repository.UpdateBookById(book.Id, book);
+
+ 
+        Assert.NotNull(updatedBook);
+        Assert.Equal("Updated Title", updatedBook?.Title);
+        Assert.Equal("Updated Author", updatedBook?.Author);
+    }
+
+    [Fact]
+    public async Task PatchBookById_ShouldUpdateOnlyProvidedFields()
+    {
+        using DbAppContext context = CreateDbContext();
+        BookRepository repository = new(context);
+
+
+        Book book = new(Guid.NewGuid())
+        {
+            Title = "Original Title",
+            Author = "Original Author",
+            IsBorrowed = false,
+            BorrowedDate = null,
+            BorrowedBy = null
+        };
+
+        await repository.AddBook(book);
+
+        Book patchBook = new(book.Id)
+        {
+            Title = "Patched Title",
+            Author = book.Author
+        };
+        Book? patchedBook = await repository.PatchBookById(book.Id, patchBook);
+
+
+        Assert.NotNull(patchedBook);
+        Assert.Equal("Patched Title", patchedBook?.Title);
+        Assert.Equal("Original Author", patchedBook?.Author);
+        Assert.Equal(book.IsBorrowed, patchedBook?.IsBorrowed);
+    }
+
+    #endregion
+
 }

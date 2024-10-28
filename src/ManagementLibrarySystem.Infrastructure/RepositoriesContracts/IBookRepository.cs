@@ -15,4 +15,6 @@ public interface IBookRepository
     Task<Book> AddBook(Book book);
 
     Task<List<Book>> GetAllBorrowedBooks();
+
+    Task<Book?> PatchBookById(Guid id, Book book);
 }
