@@ -6,6 +6,11 @@ namespace ManagementLibrarySystem.Application;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Depenency injection to add application layer to program.cs
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
 

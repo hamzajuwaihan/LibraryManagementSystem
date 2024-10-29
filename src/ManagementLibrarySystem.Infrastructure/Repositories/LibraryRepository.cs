@@ -63,7 +63,7 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 
         Member? member = await _context.Members.FindAsync(memberId);
 
-        if (library == null || member == null) return false;
+        if (library is null || member is null) return false;
 
         if (library.Members.Any(m => m.Id == memberId)) return false;
 

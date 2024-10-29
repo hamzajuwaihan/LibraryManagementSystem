@@ -3,15 +3,28 @@ using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
 
 namespace ManagementLibrarySystem.Application.CommandHandlers.LibraryMemberCommandHandlers;
-
+/// <summary>
+/// Add Library Member Command class for CQRS MediatR
+/// </summary>
+/// <param name="libraryRepository"></param>
 public class AddLibraryMemberCommandHandler(ILibraryRepository libraryRepository) : IRequestHandler<AddLibraryMemberCommand, bool>
 {
     private readonly ILibraryRepository _libraryRepository = libraryRepository;
-    
-   public async Task<bool> Handle(AddLibraryMemberCommand request, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handler function implementation
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<bool> Handle(AddLibraryMemberCommand request, CancellationToken cancellationToken)
     {
-        bool result = await _libraryRepository.AddMemberToLibrary(request.LibraryId, request.MemberId);
-
-        return result;
+        try
+        {
+            return await _libraryRepository.AddMemberToLibrary(request.LibraryId, request.MemberId);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

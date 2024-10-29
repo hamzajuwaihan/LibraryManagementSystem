@@ -8,7 +8,13 @@ namespace ManagementLibrarySystem.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services){
+    /// <summary>
+    /// Depenedncy Injection to add infastructure to program.cs, while implcitly adding EF core layer 
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    {
 
         services.AddInfrastructureEFCore();
 

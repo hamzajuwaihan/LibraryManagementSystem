@@ -3,6 +3,7 @@ using ManagementLibrarySystem.Application;
 using ManagementLibrarySystem.Presentation.Api.Routes;
 using ManagementLibrarySystem.Presentation.Api;
 
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -26,3 +27,7 @@ app.MapLibraryEndpoint();
 app.MapMemberEndpoint();
 
 app.Run();
+/// <summary>
+/// for creating a client for unit testing for API routes
+/// </summary>
+public partial class Program { }

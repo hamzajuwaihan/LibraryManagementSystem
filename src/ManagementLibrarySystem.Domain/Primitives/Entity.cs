@@ -1,4 +1,8 @@
 namespace ManagementLibrarySystem.Domain.Primitives;
+/// <summary>
+/// Base entity that every other entity inherits it
+/// </summary>
+/// <param name="id"></param>
 public abstract class Entity(Guid id) : IEquatable<Entity>
 {
     public Guid Id { get; protected init; } = id;
@@ -9,8 +13,8 @@ public abstract class Entity(Guid id) : IEquatable<Entity>
 
     public bool Equals(Entity? other)
     {
-        if (other is null) return false; 
-        if (other.GetType() != GetType()) return false; 
+        if (other is null) return false;
+        if (other.GetType() != GetType()) return false;
         return other.Id == Id;
     }
 
@@ -22,6 +26,6 @@ public abstract class Entity(Guid id) : IEquatable<Entity>
         return entity.Id == Id;
     }
 
-    public override int GetHashCode() => Id.GetHashCode() * 41; 
-    
+    public override int GetHashCode() => Id.GetHashCode() * 41;
+
 }

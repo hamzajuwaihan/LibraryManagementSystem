@@ -69,16 +69,7 @@ public static class LibraryEndPoint
         .WithTags("Library")
         .Produces<List<Book>>(StatusCodes.Status200OK);
 
-        group.MapPost("/{libraryId:Guid}/books/{bookId:Guid}", async (Guid libraryId, Guid bookId, IMediator mediator) =>
-        {
-            AddBookToLibraryCommand command = new AddBookToLibraryCommand(libraryId, bookId);
-            bool result = await mediator.Send(command);
 
-            return result ? Results.Ok() : Results.NotFound();
-        })
-        .WithTags("Library")
-        .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound);
 
     }
 }

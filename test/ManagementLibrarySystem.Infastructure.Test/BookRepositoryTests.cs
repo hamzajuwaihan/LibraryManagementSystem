@@ -1,9 +1,3 @@
-using ManagementLibrarySystem.Infrastructure.EFCore.DB;
-using ManagementLibrarySystem.Domain.Entities;
-using ManagementLibrarySystem.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-
-
 namespace ManagementLibrarySystem.Infastructure.Test;
 
 public class BookRepositoryTests

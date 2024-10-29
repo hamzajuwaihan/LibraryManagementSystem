@@ -17,9 +17,8 @@ public class GetLibraryByIdQueryHandler(ILibraryRepository libraryRepository) : 
         }
         catch (Exception e)
         {
-
             Console.WriteLine(e.Message);
-            throw;
+            return null;
         }
     }
 }

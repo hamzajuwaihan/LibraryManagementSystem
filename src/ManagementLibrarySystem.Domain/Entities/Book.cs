@@ -2,7 +2,9 @@ using System.Text.Json.Serialization;
 using ManagementLibrarySystem.Domain.Primitives;
 
 namespace ManagementLibrarySystem.Domain.Entities;
-
+/// <summary>
+/// Book Domain
+/// </summary>
 public class Book : Entity
 {
     public required string Title { get; set; }
@@ -20,16 +22,33 @@ public class Book : Entity
     /// <param name="id"></param>
     public Book(Guid id) : base(id) { }
 
-    public Book(Guid BookID, string Title, string Author, bool IsBorrowed, DateTime? BorrowedDate, Guid? BorrowedBy) : base(BookID)
+    /// <summary>
+    /// general constructor with JsonConstructor attribute for unit testing
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="title"></param>
+    /// <param name="author"></param>
+    /// <param name="isBorrowed"></param>
+    /// <param name="borrowedDate"></param>
+    /// <param name="borrowedBy"></param>
+    [JsonConstructor]
+    public Book(Guid id, string title, string author, bool isBorrowed, DateTime? borrowedDate, Guid? borrowedBy) : base(id)
     {
 
-        this.Title = Title;
-        this.Author = Author;
-        this.IsBorrowed = IsBorrowed;
-        if (BorrowedDate != null) this.BorrowedDate = BorrowedDate;
-        if (BorrowedBy == Guid.Empty) this.BorrowedBy = BorrowedBy;
+        Title = title;
+        Author = author;
+        IsBorrowed = isBorrowed;
+        if (borrowedDate != null) BorrowedDate = borrowedDate;
+        if (borrowedBy == Guid.Empty) BorrowedBy = borrowedBy;
     }
-
+    /// <summary>
+    /// Update book method
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="author"></param>
+    /// <param name="isBorrowed"></param>
+    /// <param name="borrowedDate"></param>
+    /// <param name="borrowedBy"></param>
     public void Update(string title, string author, bool isBorrowed, DateTime? borrowedDate, Guid? borrowedBy)
     {
         Title = title;
