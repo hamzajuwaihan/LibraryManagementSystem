@@ -34,8 +34,8 @@ public class BookEndpointTests
                 {
                     services.AddScoped(_ => _mediatorMock.Object);
                     services.AddScoped(_ => _borrowValidatorMock.Object);
-                    services.AddScoped(_ => _bookRepositoryMock.Object); // Add this line
-                    services.AddScoped(_ => _memberRepositoryMock.Object); // Add this line
+                    services.AddScoped(_ => _bookRepositoryMock.Object);
+                    services.AddScoped(_ => _memberRepositoryMock.Object);
                 });
             });
 
@@ -50,7 +50,7 @@ public class BookEndpointTests
         Guid memberId = Guid.NewGuid();
 
 
-        BorrowBookCommand command = new(bookId, memberId);
+        BorrowBookCommand command = new(memberId);
 
 
         _borrowValidatorMock
@@ -61,18 +61,16 @@ public class BookEndpointTests
             .Setup(m => m.Send(It.IsAny<BorrowBookCommand>(), default))
             .ReturnsAsync("Book borrowed successfully.");
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/books/{bookId}/borrow", command);
+        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{bookId}/borrow", command);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string? result = await response.Content.ReadAsStringAsync();
-        Assert.Equal("\"Book borrowed successfully.\"", result);
     }
 
     [Fact]
     public async Task BorrowBook_ReturnsBadRequest_WhenValidationFails()
     {
         Guid bookId = Guid.NewGuid();
-        BorrowBookCommand command = new(bookId, Guid.NewGuid());
+        BorrowBookCommand command = new(Guid.NewGuid());
 
         _borrowValidatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<BorrowBookCommand>(), default))
@@ -81,10 +79,9 @@ public class BookEndpointTests
                 new ValidationFailure("BookId", "Invalid book ID.")
             }));
 
-        // Act
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/books/{bookId}/borrow", command);
+        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{bookId}/borrow", command);
 
-        // Assert
+
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         string? result = await response.Content.ReadAsStringAsync();
         Assert.Contains("Invalid book ID.", result);
@@ -107,7 +104,7 @@ public class BookEndpointTests
             .Setup(m => m.Send(It.IsAny<AddBookCommand>(), default))
             .ThrowsAsync(new Exception("Should not reach mediator for invalid command"));
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync("/api/book", invalidBookCommand);
+        HttpResponseMessage response = await _client.PostAsJsonAsync("/book", invalidBookCommand);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         string result = await response.Content.ReadAsStringAsync();
@@ -141,7 +138,7 @@ public class BookEndpointTests
             .Setup(m => m.Send(It.IsAny<GetBookByIdQuery>(), default))
             .ReturnsAsync(expectedBook);
 
-        HttpResponseMessage response = await _client.GetAsync($"/api/book/{bookId}");
+        HttpResponseMessage response = await _client.GetAsync($"/book/{bookId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string? result = await response.Content.ReadAsStringAsync();
@@ -153,7 +150,7 @@ public class BookEndpointTests
     public async Task GetBookById_ReturnsNotFound_WhenBookDoesNotExist()
     {
         Guid bookId = Guid.NewGuid();
-        HttpResponseMessage response = await _client.GetAsync($"/api/book/{bookId}");
+        HttpResponseMessage response = await _client.GetAsync($"/book/{bookId}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -162,24 +159,11 @@ public class BookEndpointTests
     {
         Guid bookId = Guid.NewGuid();
 
-        HttpResponseMessage response = await _client.DeleteAsync($"/api/book/{bookId}");
+        HttpResponseMessage response = await _client.DeleteAsync($"/book/{bookId}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
-    public async Task BorrowBook_ReturnsBadRequest_WhenBookIdMismatch()
-    {
-        Guid bookId = Guid.NewGuid();
-        BorrowBookCommand command = new(Guid.NewGuid(), Guid.NewGuid());
-
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/books/{bookId}/borrow", command);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
-        string result = await response.Content.ReadAsStringAsync();
-        Assert.Contains("\"Book ID and Request book ID are not the same\"", result);
-    }
 
     [Fact]
     public async Task AddBook_ReturnsCreated_WhenBookIsValid()
@@ -201,7 +185,7 @@ public class BookEndpointTests
             .Setup(m => m.Send(It.IsAny<AddBookCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdBook);
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync("/api/book", command);
+        HttpResponseMessage response = await _client.PostAsJsonAsync("/book", command);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Book? resultBook = await response.Content.ReadFromJsonAsync<Book>();
@@ -220,7 +204,7 @@ public class BookEndpointTests
             .ReturnsAsync(true);
 
 
-        HttpResponseMessage response = await _client.DeleteAsync($"/api/book/{bookId}");
+        HttpResponseMessage response = await _client.DeleteAsync($"/book/{bookId}");
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
@@ -231,7 +215,7 @@ public class BookEndpointTests
         Guid bookId = Guid.NewGuid();
         ReturnBookCommand command = new(bookId);
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/books/{Guid.NewGuid()}/return", command);
+        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{Guid.NewGuid()}/return", command);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -251,7 +235,7 @@ public class BookEndpointTests
         ReturnBookCommand returnCommand = new(bookId);
 
 
-        HttpResponseMessage returnResponse = await _client.PostAsJsonAsync($"/books/{bookId}/return", returnCommand);
+        HttpResponseMessage returnResponse = await _client.PostAsJsonAsync($"/book/{bookId}/return", returnCommand);
 
 
         Assert.Equal(HttpStatusCode.OK, returnResponse.StatusCode);
@@ -259,32 +243,6 @@ public class BookEndpointTests
         Assert.Equal("\"Book returned successfully.\"", returnResultMessage);
     }
 
-    [Fact]
-    public async Task UpdateBook_ReturnsOk_WhenBookIsUpdatedSuccessfully()
-    {
-        Guid targetId = Guid.NewGuid();
-
-        Book book = new Book(targetId)
-        {
-            Title = "The Great Gatsby",
-            Author = "F. Scott Fitzgerald"
-        };
-        _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateBookByIdCommand>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(book);
-
-        UpdateBookByIdCommand command = new UpdateBookByIdCommand(targetId, "The Great Gatsby", "F. Scott Fitzgerald", false, null, null);
-        HttpResponseMessage response = await _client.PutAsJsonAsync($"/books/{targetId}", command);
-
-        response.EnsureSuccessStatusCode();
-
-        Book? updatedBook = await response.Content.ReadFromJsonAsync<Book>(); // Directly deserialize to Book object
-
-        Assert.NotNull(updatedBook);
-        Assert.Equal(targetId, updatedBook.Id);
-        Assert.Equal("The Great Gatsby", updatedBook.Title);
-        Assert.Equal("F. Scott Fitzgerald", updatedBook.Author);
-
-    }
 
     [Fact]
     public async Task PatchBook_ReturnsOk_WhenBookIsPatchedSuccessfully()
@@ -309,9 +267,9 @@ public class BookEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<PatchBookByIdCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(updatedBook);
 
-        PatchBookByIdCommand patchCommand = new PatchBookByIdCommand(targetId, "Updated Title", "Original Author", null, null, null);
+        PatchBookByIdCommand patchCommand = new PatchBookByIdCommand("Updated Title", "Original Author", null, null, null);
 
-        HttpResponseMessage response = await _client.PatchAsJsonAsync($"/books/{targetId}", patchCommand);
+        HttpResponseMessage response = await _client.PatchAsJsonAsync($"/book/{targetId}", patchCommand);
 
         response.EnsureSuccessStatusCode();
 

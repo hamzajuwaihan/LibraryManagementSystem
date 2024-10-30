@@ -1,4 +1,6 @@
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Library;
+using ManagementLibrarySystem.Domain.Exceptions.Member;
 using ManagementLibrarySystem.Infrastructure.EFCore.DB;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using Microsoft.EntityFrameworkCore;
@@ -8,44 +10,35 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 {
     private readonly DbAppContext _context = context;
 
-    public async Task<Library> AddLibrary(Library library)
+    public async Task<Library> CreateLibrary(Library library)
     {
-        try
-        {
-            await _context.Libraries.AddAsync(library);
-            await _context.SaveChangesAsync();
-            return library;
-        }
-        catch (Exception ex)
-        {
+        await _context.Libraries.AddAsync(library);
 
-            Console.WriteLine(ex);
-            throw;
-        }
+        await _context.SaveChangesAsync();
+
+        return library;
     }
 
     public async Task<bool> DeleteLibraryById(Guid id)
     {
-        Library? library = await GetLibraryById(id);
-
-        if (library is null) return false;
+        Library? library = await GetLibraryById(id) ?? throw new LibraryNotFoundException();
 
         _context.Libraries.Remove(library);
+
         await _context.SaveChangesAsync();
+
         return true;
     }
 
-    public async Task<List<Library>> GetAllLibraries() => await _context.Libraries.ToListAsync();
-    
+    public IQueryable<Library> GetAllLibraries() =>  _context.Libraries;
+
     public async Task<Library?> GetLibraryById(Guid id) => await _context.Libraries.Include(library => library.Books).FirstOrDefaultAsync(library => library.Id == id);
 
 
-    public async Task<Library?> UpdateLibraryById(Library library)
+    public async Task<Library?> UpdateLibrary(Library library)
     {
-        Library? existingLibrary = await _context.Libraries.FindAsync(library.Id);
+        Library? existingLibrary = await _context.Libraries.FindAsync(library.Id) ?? throw new LibraryNotFoundException();
 
-        if (existingLibrary == null) return null;
-        
         existingLibrary.Update(library.Name);
 
         await _context.SaveChangesAsync();
@@ -55,17 +48,13 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 
     public async Task<bool> AddMemberToLibrary(Guid libraryId, Guid memberId)
     {
-
         Library? library = await _context.Libraries
             .Include(l => l.Members)
-            .FirstOrDefaultAsync(l => l.Id == libraryId);
+            .FirstOrDefaultAsync(l => l.Id == libraryId) ?? throw new LibraryNotFoundException();
 
+        Member? member = await _context.Members.FindAsync(memberId) ?? throw new MemberNotFoundException();
 
-        Member? member = await _context.Members.FindAsync(memberId);
-
-        if (library is null || member is null) return false;
-
-        if (library.Members.Any(m => m.Id == memberId)) return false;
+        if (library.Members.Any(m => m.Id == memberId)) throw new LibraryAlreadyHasThisMember();
 
         library.Members.Add(member);
 

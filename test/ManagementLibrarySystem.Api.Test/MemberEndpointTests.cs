@@ -34,7 +34,7 @@ public class MemberEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<AddMemberCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdMember);
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync("/api/member", newMember);
+        HttpResponseMessage response = await _client.PostAsJsonAsync("/member", newMember);
 
         response.EnsureSuccessStatusCode();
         Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
@@ -51,7 +51,7 @@ public class MemberEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<DeleteMemberCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        HttpResponseMessage response = await _client.DeleteAsync($"/api/member/{memberId}");
+        HttpResponseMessage response = await _client.DeleteAsync($"/member/{memberId}");
 
         response.EnsureSuccessStatusCode();
         Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
@@ -66,7 +66,7 @@ public class MemberEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetMemberByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(member);
 
-        HttpResponseMessage response = await _client.GetAsync($"/api/member/{memberId}");
+        HttpResponseMessage response = await _client.GetAsync($"/member/{memberId}");
 
         response.EnsureSuccessStatusCode();
         Member? returnedMember = await response.Content.ReadFromJsonAsync<Member>();
@@ -87,7 +87,7 @@ public class MemberEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllMembersQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(members);
 
-        HttpResponseMessage response = await _client.GetAsync("/api/member");
+        HttpResponseMessage response = await _client.GetAsync("/member");
 
         response.EnsureSuccessStatusCode();
         List<Member>? returnedMembers = await response.Content.ReadFromJsonAsync<List<Member>>();

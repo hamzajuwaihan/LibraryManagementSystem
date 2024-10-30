@@ -8,12 +8,18 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ManagementLibrarySystem.Domain\ManagementLibrarySystem.Domain.csproj" />
     <ProjectReference Include="..\ManagementLibrarySystem.Infrastructure\ManagementLibrarySystem.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>

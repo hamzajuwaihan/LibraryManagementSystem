@@ -3,7 +3,7 @@ using MediatR;
 
 namespace ManagementLibrarySystem.Application.Queries.LibraryQueries;
 
-public class GetLibraryByIdQuery(Guid libraryId) : IRequest<Library>
+public class GetLibraryByIdQuery(Guid id) : IRequest<Library>
 {
-    public Guid LibraryId { get; } = libraryId;
+    public Guid Id { get; } = id;
 }

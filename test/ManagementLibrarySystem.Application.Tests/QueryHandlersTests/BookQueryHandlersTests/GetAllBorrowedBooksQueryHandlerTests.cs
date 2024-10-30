@@ -27,7 +27,7 @@ public class GetAllBorrowedBooksQueryHandlerTests
             new Book(Guid.NewGuid()) { Title = "Borrowed Book 2", Author = "Author 2" }
         };
 
-        _mockBookRepository.Setup(repo => repo.GetAllBorrowedBooks()).ReturnsAsync(borrowedBooks);
+        _mockBookRepository.Setup(repo => repo.GetAllBorrowedBooks()).Returns(borrowedBooks.AsQueryable());
 
         GetAllBorrowedBooksQuery query = new GetAllBorrowedBooksQuery();
 
@@ -38,18 +38,4 @@ public class GetAllBorrowedBooksQueryHandlerTests
         Assert.Equal(2, result.Count);
     }
 
-    [Fact]
-    public async Task Handle_WhenExceptionThrown_ReturnsEmptyList()
-    {
-
-        _mockBookRepository.Setup(repo => repo.GetAllBorrowedBooks()).ThrowsAsync(new System.Exception("Database error"));
-
-        GetAllBorrowedBooksQuery query = new GetAllBorrowedBooksQuery();
-
-
-        List<Book> result = await _handler.Handle(query, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.Empty(result);
-    }
 }

@@ -27,13 +27,13 @@ public class AddLibraryCommandHandlerTests
             Name = libraryName
         };
 
-        _mockLibraryRepository.Setup(repo => repo.AddLibrary(It.IsAny<Library>())).ReturnsAsync(newLibrary);
+        _mockLibraryRepository.Setup(repo => repo.CreateLibrary(It.IsAny<Library>())).ReturnsAsync(newLibrary);
 
         Library result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(libraryName, result.Name);
-        _mockLibraryRepository.Verify(repo => repo.AddLibrary(It.Is<Library>(lib => lib.Name == libraryName)), Times.Once);
+        _mockLibraryRepository.Verify(repo => repo.CreateLibrary(It.Is<Library>(lib => lib.Name == libraryName)), Times.Once);
     }
 
     [Fact]
@@ -42,9 +42,9 @@ public class AddLibraryCommandHandlerTests
         string libraryName = "New Library";
         AddLibraryCommand command = new(libraryName);
 
-        _mockLibraryRepository.Setup(repo => repo.AddLibrary(It.IsAny<Library>())).ThrowsAsync(new Exception("Database error"));
+        _mockLibraryRepository.Setup(repo => repo.CreateLibrary(It.IsAny<Library>())).ThrowsAsync(new Exception("Database error"));
 
         await Assert.ThrowsAsync<Exception>(async () => await _handler.Handle(command, CancellationToken.None));
-        _mockLibraryRepository.Verify(repo => repo.AddLibrary(It.IsAny<Library>()), Times.Once);
+        _mockLibraryRepository.Verify(repo => repo.CreateLibrary(It.IsAny<Library>()), Times.Once);
     }
 }

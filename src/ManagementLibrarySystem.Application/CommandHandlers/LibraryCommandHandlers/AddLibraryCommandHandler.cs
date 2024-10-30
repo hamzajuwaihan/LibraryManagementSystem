@@ -19,19 +19,15 @@ public class AddLibraryCommandHandler(ILibraryRepository libraryRepository) : IR
     /// <returns></returns>
     public async Task<Library> Handle(AddLibraryCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            Library newLibrary = new(Guid.NewGuid())
-            {
-                Name = request.Name,
-            };
 
-            return await _libraryRepository.AddLibrary(newLibrary);
-        }
-        catch (Exception e)
+
+        Library newLibrary = new(Guid.NewGuid())
         {
-            Console.WriteLine(e.Message);
-            throw;
-        }
+            Name = request.Name,
+        };
+
+        return await _libraryRepository.CreateLibrary(newLibrary);
+
+
     }
 }

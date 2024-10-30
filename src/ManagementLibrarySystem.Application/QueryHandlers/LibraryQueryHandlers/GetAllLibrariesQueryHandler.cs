@@ -2,6 +2,7 @@ using ManagementLibrarySystem.Application.Queries.LibraryQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagementLibrarySystem.Application.QueryHandlers.LibraryQueryHandlers;
 /// <summary>
@@ -12,16 +13,17 @@ public class GetAllLibrariesQueryHandler(ILibraryRepository libraryRepository) :
 {
     private readonly ILibraryRepository _libraryRepository = libraryRepository;
 
-    public async Task<List<Library>> Handle(GetAllLibrariesQuery request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _libraryRepository.GetAllLibraries();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return [];
-        }
+    public async Task<List<Library>> Handle(GetAllLibrariesQuery request, CancellationToken cancellationToken) {
+
+    int skip = (request.PageNumber - 1) * request.PageSize;
+
+    List<Library> libraries = await _libraryRepository
+        .GetAllLibraries()
+        .Skip(skip)
+        .Take(request.PageSize)
+        .ToListAsync();
+
+        return libraries;
     }
+
 }

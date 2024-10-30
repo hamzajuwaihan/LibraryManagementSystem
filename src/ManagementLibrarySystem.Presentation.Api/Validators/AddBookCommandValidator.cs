@@ -2,7 +2,7 @@
 using FluentValidation;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 
-namespace ManagementLibrarySystem.Presentation.Api.Abstractions;
+namespace ManagementLibrarySystem.Presentation.Api.Validators;
 
 public class AddBookCommandValidator : AbstractValidator<AddBookCommand>
 {
@@ -17,6 +17,9 @@ public class AddBookCommandValidator : AbstractValidator<AddBookCommand>
 
         RuleFor(command => command.Author)
             .NotEmpty().WithMessage("Author is required");
+
+        RuleFor(command => command.LibraryId)
+            .NotEmpty().WithMessage("the book should belong to a library");
 
     }
 }

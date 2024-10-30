@@ -2,6 +2,7 @@
 using ManagementLibrarySystem.Application.Queries.LibraryQueries;
 using ManagementLibrarySystem.Application.QueryHandlers.LibraryQueryHandlers;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Library;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 
 namespace ManagementLibrarySystem.Application.Test.QueryHandlersTests.LibraryQueryHandlersTests;
@@ -42,22 +43,8 @@ public class GetLibraryByIdQueryHandlerTests
 
         GetLibraryByIdQuery query = new GetLibraryByIdQuery(libraryId);
 
-        Library? result = await _handler.Handle(query, CancellationToken.None);
-
-        Assert.Null(result);
+        await Assert.ThrowsAsync<LibraryNotFoundException>(()=> _handler.Handle(query, CancellationToken.None));
     }
 
-    [Fact]
-    public async Task GetLibraryByIdQueryHandler_WhenExceptionThrown_ReturnsNull()
-    {
-        Guid libraryId = Guid.NewGuid();
 
-        _mockLibraryRepository.Setup(repo => repo.GetLibraryById(libraryId)).ThrowsAsync(new Exception("Database error"));
-
-        GetLibraryByIdQuery query = new GetLibraryByIdQuery(libraryId);
-
-        Library? result = await _handler.Handle(query, CancellationToken.None);
-
-        Assert.Null(result);
-    }
 }

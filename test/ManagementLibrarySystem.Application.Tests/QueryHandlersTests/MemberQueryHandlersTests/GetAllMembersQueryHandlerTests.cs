@@ -20,17 +20,17 @@ public class GetAllMembersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenMembersExist_ReturnsListOfMembers()
     {
-        var expectedMembers = new List<Member>
+        List<Member> expectedMembers = new List<Member>
         {
             new(Guid.NewGuid()) { Name = "Member 1", Email= "Hamza@gmail.com" },
             new(Guid.NewGuid()) { Name = "Member 2" , Email= "Hamza@gmail.com" }
         };
 
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ReturnsAsync(expectedMembers);
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).Returns(expectedMembers.AsQueryable());
 
-        var query = new GetAllMembersQuery();
+        GetAllMembersQuery query = new GetAllMembersQuery();
 
-        var result = await _handler.Handle(query, CancellationToken.None);
+        List<Member> result = await _handler.Handle(query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(expectedMembers.Count, result.Count);
@@ -39,11 +39,11 @@ public class GetAllMembersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenNoMembersExist_ReturnsEmptyList()
     {
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ReturnsAsync(new List<Member>());
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).Returns(new List<Member>().AsQueryable());
 
-        var query = new GetAllMembersQuery();
+        GetAllMembersQuery query = new GetAllMembersQuery();
 
-        var result = await _handler.Handle(query, CancellationToken.None);
+        List<Member> result = await _handler.Handle(query, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Empty(result); 
@@ -52,9 +52,9 @@ public class GetAllMembersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenExceptionThrown_ReturnsNull()
     {
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ThrowsAsync(new Exception("Database error"));
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).Throws(new Exception("Database error"));
 
-        var query = new GetAllMembersQuery();
+        GetAllMembersQuery query = new GetAllMembersQuery();
 
         await Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
     }

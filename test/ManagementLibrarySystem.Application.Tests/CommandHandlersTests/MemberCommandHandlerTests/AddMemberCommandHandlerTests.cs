@@ -28,14 +28,14 @@ public class AddMemberCommandHandlerTests
             Email = memberEmail
         };
 
-        _mockMemberRepository.Setup(repo => repo.AddMember(It.IsAny<Member>())).ReturnsAsync(newMember);
+        _mockMemberRepository.Setup(repo => repo.CreateMember(It.IsAny<Member>())).ReturnsAsync(newMember);
 
         Member result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(memberName, result.Name);
         Assert.Equal(memberEmail, result.Email);
-        _mockMemberRepository.Verify(repo => repo.AddMember(It.IsAny<Member>()), Times.Once);
+        _mockMemberRepository.Verify(repo => repo.CreateMember(It.IsAny<Member>()), Times.Once);
     }
 
     [Fact]
@@ -45,9 +45,9 @@ public class AddMemberCommandHandlerTests
         string memberEmail = "jane.doe@example.com";
         AddMemberCommand command = new(memberName, memberEmail);
 
-        _mockMemberRepository.Setup(repo => repo.AddMember(It.IsAny<Member>())).ThrowsAsync(new Exception("Database error"));
+        _mockMemberRepository.Setup(repo => repo.CreateMember(It.IsAny<Member>())).ThrowsAsync(new Exception("Database error"));
 
         await Assert.ThrowsAsync<Exception>(async () => await _handler.Handle(command, CancellationToken.None));
-        _mockMemberRepository.Verify(repo => repo.AddMember(It.IsAny<Member>()), Times.Once);
+        _mockMemberRepository.Verify(repo => repo.CreateMember(It.IsAny<Member>()), Times.Once);
     }
 }

@@ -43,17 +43,5 @@ public class DeleteMemberCommandHandlerTests
         _mockMemberRepository.Verify(repo => repo.DeleteMemberById(memberId), Times.Once);
     }
 
-    [Fact]
-    public async Task DeleteMember_ExceptionThrown_ReturnsFalse()
-    {
-        Guid memberId = Guid.NewGuid();
-        DeleteMemberCommand command = new(memberId);
 
-        _mockMemberRepository.Setup(repo => repo.DeleteMemberById(memberId)).ThrowsAsync(new Exception("Database error"));
-
-        bool result = await _handler.Handle(command, CancellationToken.None);
-
-        Assert.False(result);
-        _mockMemberRepository.Verify(repo => repo.DeleteMemberById(memberId), Times.Once);
-    }
 }

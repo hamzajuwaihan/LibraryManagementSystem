@@ -26,7 +26,7 @@ public class GetAllLibrariesQueryHandlerTests
             new Library(Guid.NewGuid()) { Name = "Library Two" }
         };
 
-        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).ReturnsAsync(libraries);
+        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).Returns(libraries.AsQueryable());
 
         GetAllLibrariesQuery query = new();
 
@@ -42,7 +42,7 @@ public class GetAllLibrariesQueryHandlerTests
     [Fact]
     public async Task GetAllLibrariesQueryHandler_WhenNoLibrariesExist_ReturnsEmptyList()
     {
-        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).ReturnsAsync(new List<Library>());
+        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).Returns(new List<Library>().AsQueryable());
 
         GetAllLibrariesQuery query = new();
 
@@ -53,17 +53,5 @@ public class GetAllLibrariesQueryHandlerTests
         Assert.Empty(result); 
     }
 
-    [Fact]
-    public async Task GetAllLibrariesQueryHandler_WhenExceptionThrown_ReturnsEmptyList()
-    {
-        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).ThrowsAsync(new Exception("Database error"));
 
-        GetAllLibrariesQuery query = new();
-
-
-        List<Library> result = await _handler.Handle(query, CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.Empty(result); 
-    }
 }

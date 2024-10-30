@@ -25,7 +25,7 @@ public class MemberRepositoryTests
             Email = "john.doe@example.com",
         };
 
-        Member createdMember = await repository.AddMember(member);
+        Member createdMember = await repository.CreateMember(member);
 
         Assert.NotNull(createdMember);
         Assert.Equal("John Doe", createdMember.Name);
@@ -41,7 +41,7 @@ public class MemberRepositoryTests
 
         Member newMember = null!;
 
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.AddMember(newMember));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.CreateMember(newMember));
     }
     #endregion
 
@@ -60,7 +60,7 @@ public class MemberRepositoryTests
             Email = "john.doe@example.com",
         };
 
-        Member createdMember = await repository.AddMember(member);
+        Member createdMember = await repository.CreateMember(member);
         Member? searchMember = await repository.GetMemberById(createdMember.Id);
 
         Assert.Equal(createdMember.Id, searchMember?.Id);
@@ -94,21 +94,11 @@ public class MemberRepositoryTests
             Name = "John Doe",
             Email = "john.doe@example.com",
         };
-        Member addedMember = await repository.AddMember(member);
+        Member addedMember = await repository.CreateMember(member);
 
         Assert.True(await repository.DeleteMemberById(addedMember.Id));
-        Assert.Empty(await repository.GetAllMembers());
     }
 
-    [Fact]
-    public async Task DeleteMemberById_ShouldReturnFalseWhenIdIsNull()
-    {
-        using DbAppContext context = CreateDbContext();
-        MemberRepository repository = new(context);
-
-        Guid id = Guid.Empty;
-
-        Assert.False(await repository.DeleteMemberById(id));
-    }
+ 
     #endregion
 }

@@ -3,6 +3,7 @@ using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandlers;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
+using ManagementLibrarySystem.Domain.Exceptions.Library;
 
 namespace ManagementLibrarySystem.Application.Test.CommandHandlersTests.BookCommandHandlersTests;
 
@@ -35,7 +36,7 @@ public class AddBookCommandHandlerTests
             .ReturnsAsync(library);
 
         _mockBookRepository
-            .Setup(repo => repo.AddBook(It.IsAny<Book>()))
+            .Setup(repo => repo.CreateBook(It.IsAny<Book>()))
             .ReturnsAsync((Book book) => book);
 
         Book result = await _handler.Handle(addBookCommand, CancellationToken.None);
@@ -44,7 +45,7 @@ public class AddBookCommandHandlerTests
         Assert.Equal(addBookCommand.Title, result.Title);
         Assert.Equal(addBookCommand.Author, result.Author);
         Assert.Equal(addBookCommand.LibraryId, result.LibraryId);
-        _mockBookRepository.Verify(repo => repo.AddBook(It.IsAny<Book>()), Times.Once);
+        _mockBookRepository.Verify(repo => repo.CreateBook(It.IsAny<Book>()), Times.Once);
     }
 
     [Fact]
@@ -59,11 +60,10 @@ public class AddBookCommandHandlerTests
             .ReturnsAsync((Library?)null);
 
 
-        Exception exception = await Assert.ThrowsAsync<Exception>(() =>
+        Exception exception = await Assert.ThrowsAsync<LibraryNotFoundException>(() =>
             _handler.Handle(addBookCommand, CancellationToken.None));
 
-        Assert.Equal($"Library with ID {libraryId} does not exist.", exception.Message);
-        _mockBookRepository.Verify(repo => repo.AddBook(It.IsAny<Book>()), Times.Never);
+        _mockBookRepository.Verify(repo => repo.CreateBook(It.IsAny<Book>()), Times.Never);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class AddBookCommandHandlerTests
             .ReturnsAsync(library);
 
         _mockBookRepository
-            .Setup(repo => repo.AddBook(It.IsAny<Book>()))
+            .Setup(repo => repo.CreateBook(It.IsAny<Book>()))
             .ThrowsAsync(new Exception("Database error"));
 
 
@@ -90,7 +90,7 @@ public class AddBookCommandHandlerTests
             _handler.Handle(addBookCommand, CancellationToken.None));
 
         Assert.Equal("Database error", exception.Message);
-        _mockBookRepository.Verify(repo => repo.AddBook(It.IsAny<Book>()), Times.Once);
+        _mockBookRepository.Verify(repo => repo.CreateBook(It.IsAny<Book>()), Times.Once);
     }
 
 }

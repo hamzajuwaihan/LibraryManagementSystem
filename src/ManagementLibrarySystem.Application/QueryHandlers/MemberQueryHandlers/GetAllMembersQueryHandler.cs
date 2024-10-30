@@ -1,8 +1,8 @@
-using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Application.Queries.MemberQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagementLibrarySystem.Application.QueryHandlers.MemberQueryHandlers;
 
@@ -11,15 +11,14 @@ public class GetAllMembersQueryHandler(IMemberRepository memberRepository) : IRe
     private readonly IMemberRepository _memberRepository = memberRepository;
     public async Task<List<Member>> Handle(GetAllMembersQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            List<Member> result = await _memberRepository.GetAllMembers();
-            return result;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            throw;
-        }
+        int skip = (request.PageNumber - 1) * request.PageSize;
+
+        List<Member> members = await _memberRepository
+            .GetAllMembers()
+            .Skip(skip)
+            .Take(request.PageSize)
+            .ToListAsync();
+
+        return members;
     }
 }

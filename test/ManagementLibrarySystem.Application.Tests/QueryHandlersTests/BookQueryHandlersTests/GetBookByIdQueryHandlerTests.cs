@@ -2,6 +2,7 @@
 using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Application.QueryHandlers.BookQueryHandlers;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 
 namespace ManagementLibrarySystem.Application.Test.QueryHandlersTests.BookQueryHandlersTests;
@@ -37,25 +38,10 @@ public class GetBookByIdQueryHandlerTests
         Assert.Equal(expectedBook.Author, result.Author);
     }
 
-    [Fact]
-    public async Task GetBookByIdQueryHandler_WhenBookDoesNotExist_ReturnsNull()
-    {
 
-        Guid bookId = Guid.NewGuid();
-
-        _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync((Book?)null);
-
-        GetBookByIdQuery query = new GetBookByIdQuery(bookId);
-
-
-        Book? result = await _handler.Handle(query, CancellationToken.None);
-
-
-        Assert.Null(result); 
-    }
 
     [Fact]
-    public async Task GetBookByIdQueryHandler_WhenExceptionThrown_ReturnsNull()
+    public async Task GetBookByIdQueryHandler_WhenExceptionThrown_ThrowsException()
     {
 
         Guid bookId = Guid.NewGuid();
@@ -63,11 +49,7 @@ public class GetBookByIdQueryHandlerTests
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ThrowsAsync(new Exception("Database error"));
 
         GetBookByIdQuery query = new GetBookByIdQuery(bookId);
-
-
-        Book? result = await _handler.Handle(query, CancellationToken.None);
-
-
-        Assert.Null(result); 
+        
+        await Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
     }
 }

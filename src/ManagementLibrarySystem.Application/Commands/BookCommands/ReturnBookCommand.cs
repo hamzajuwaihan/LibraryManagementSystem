@@ -2,7 +2,7 @@ using MediatR;
 
 namespace ManagementLibrarySystem.Application.Commands.BookCommands;
 
-public class ReturnBookCommand(Guid bookId) : IRequest<string>
+public class ReturnBookCommand(Guid id) : IRequest<string>
 {
-    public Guid BookId { get; } = bookId;
+    public Guid Id { get; } = id;
 }

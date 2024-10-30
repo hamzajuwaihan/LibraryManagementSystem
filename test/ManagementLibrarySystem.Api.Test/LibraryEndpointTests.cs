@@ -36,7 +36,7 @@ public class LibraryEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<AddLibraryCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdLibrary);
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync("/api/library", newLibrary);
+        HttpResponseMessage response = await _client.PostAsJsonAsync("/library", newLibrary);
 
         response.EnsureSuccessStatusCode();
         Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
@@ -53,7 +53,7 @@ public class LibraryEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<DeleteLibraryCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        HttpResponseMessage response = await _client.DeleteAsync($"/api/library/{libraryId}");
+        HttpResponseMessage response = await _client.DeleteAsync($"/library/{libraryId}");
 
         response.EnsureSuccessStatusCode();
         Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
@@ -67,7 +67,7 @@ public class LibraryEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetLibraryByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(library);
 
-        HttpResponseMessage response = await _client.GetAsync($"/api/library/{libraryId}");
+        HttpResponseMessage response = await _client.GetAsync($"/library/{libraryId}");
 
         response.EnsureSuccessStatusCode();
         Library? returnedLibrary = await response.Content.ReadFromJsonAsync<Library>();
@@ -88,7 +88,7 @@ public class LibraryEndpointTests
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetAllLibrariesQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(libraries);
 
-        HttpResponseMessage response = await _client.GetAsync("/api/library");
+        HttpResponseMessage response = await _client.GetAsync("/library");
 
         response.EnsureSuccessStatusCode();
         List<Library>? returnedLibraries = await response.Content.ReadFromJsonAsync<List<Library>>();

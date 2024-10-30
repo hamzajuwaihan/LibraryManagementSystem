@@ -12,7 +12,7 @@ public static class LibraryEndPoint
 {
     public static void MapLibraryEndpoint(this IEndpointRouteBuilder app)
     {
-        RouteGroupBuilder group = app.MapGroup("api/Library");
+        RouteGroupBuilder group = app.MapGroup("Library");
 
         group.MapPost("", async (AddLibraryCommand command, IMediator _mediator) =>
         {
@@ -20,7 +20,7 @@ public static class LibraryEndPoint
             if (command == null) return Results.BadRequest("Library data is required");
 
             Library result = await _mediator.Send(command);
-            return Results.Created($"/api/books/{result.Id}", result);
+            return Results.Created($"/{result.Id}", result);
         })
         .WithTags("Library")
         .Produces<Library>(StatusCodes.Status201Created)
@@ -57,12 +57,10 @@ public static class LibraryEndPoint
         .Produces<Book>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("", async (IMediator _mediator) =>
+        group.MapGet("", async(IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>
         {
-            GetAllLibrariesQuery query = new GetAllLibrariesQuery();
+            GetAllLibrariesQuery query = new() { PageNumber = pageNumber, PageSize = pageSize }; ;
             List<Library> libraries = await _mediator.Send(query);
-
-            libraries.ForEach(library => Console.WriteLine(library.Id));
 
             return Results.Ok(libraries);
         })

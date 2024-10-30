@@ -47,18 +47,5 @@ public class AddLibraryMemberCommandHandlerTests
         _mockLibraryRepository.Verify(repo => repo.AddMemberToLibrary(libraryId, memberId), Times.Once);
     }
 
-    [Fact]
-    public async Task AddLibrary_ExceptionThrown_ReturnsFalse()
-    {
-        Guid libraryId = Guid.NewGuid();
-        Guid memberId = Guid.NewGuid();
-        AddLibraryMemberCommand command = new(libraryId, memberId);
 
-        _mockLibraryRepository.Setup(repo => repo.AddMemberToLibrary(libraryId, memberId)).ThrowsAsync(new Exception("Database error"));
-
-        bool result = await _handler.Handle(command, CancellationToken.None);
-
-        Assert.False(result);
-        _mockLibraryRepository.Verify(repo => repo.AddMemberToLibrary(libraryId, memberId), Times.Once);
-    }
 }

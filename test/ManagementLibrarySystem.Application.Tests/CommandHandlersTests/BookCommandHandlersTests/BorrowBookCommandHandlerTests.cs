@@ -1,7 +1,11 @@
 using ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandlers;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
+using ManagementLibrarySystem.Domain.Exceptions.Member;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace ManagementLibrarySystem.Application.Test.CommandHandlersTests.BookCommandHandlersTests;
 
@@ -10,12 +14,13 @@ public class BorrowBookCommandHandlerTests
     private readonly Mock<IBookRepository> _mockBookRepository;
     private readonly Mock<IMemberRepository> _mockMemberRepository;
     private readonly BorrowBookCommandHandler _handler;
-
+    private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
     public BorrowBookCommandHandlerTests()
     {
         _mockBookRepository = new Mock<IBookRepository>();
         _mockMemberRepository = new Mock<IMemberRepository>();
-        _handler = new BorrowBookCommandHandler(_mockBookRepository.Object, _mockMemberRepository.Object);
+        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        _handler = new BorrowBookCommandHandler(_mockBookRepository.Object, _mockMemberRepository.Object, _mockHttpContextAccessor.Object);
     }
 
     [Fact]
@@ -23,7 +28,7 @@ public class BorrowBookCommandHandlerTests
     {
         Guid bookId = Guid.NewGuid();
         Guid memberId = Guid.NewGuid();
-        BorrowBookCommand command = new(bookId, memberId);
+        BorrowBookCommand command = new(memberId);
 
         Book book = new(bookId)
         {
@@ -36,6 +41,15 @@ public class BorrowBookCommandHandlerTests
             Name = "Hamza",
             Email = "Hamza@gmail.com"
         };
+
+        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
+        mockHttpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            { "id", bookId.ToString() }
+        };
+
+        _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
+
 
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync(book);
         _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ReturnsAsync(member);
@@ -50,16 +64,23 @@ public class BorrowBookCommandHandlerTests
     [Fact]
     public async Task BorrowBook_ShouldReturnBookNotFound_WhenBookDoesNotExist()
     {
+
         Guid bookId = Guid.NewGuid();
         Guid memberId = Guid.NewGuid();
-        BorrowBookCommand command = new(bookId, memberId);
+        BorrowBookCommand command = new(memberId);
+
+        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
+        mockHttpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            { "id", bookId.ToString() }
+        };
+        _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
 
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync((Book?)null);
 
-        string result = await _handler.Handle(command, CancellationToken.None);
+        await Assert.ThrowsAsync<BookNotFoundException>(() =>
+                 _handler.Handle(command, CancellationToken.None));
 
-
-        Assert.Equal("Book not found.", result);
         _mockBookRepository.Verify(repo => repo.UpdateBookById(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
     }
     [Fact]
@@ -68,7 +89,7 @@ public class BorrowBookCommandHandlerTests
 
         Guid bookId = Guid.NewGuid();
         Guid memberId = Guid.NewGuid();
-        BorrowBookCommand command = new(bookId, memberId);
+        BorrowBookCommand command = new(memberId);
 
         Book book = new(bookId)
         {
@@ -77,10 +98,17 @@ public class BorrowBookCommandHandlerTests
             IsBorrowed = true
         };
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync(book);
+        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
+        mockHttpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            { "id", bookId.ToString() }
+        };
+        _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
 
-        string result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal("Book is already borrowed.", result);
+        Exception exception = await Assert.ThrowsAsync<BookAlreadyBorrowedException>(() =>
+         _handler.Handle(command, CancellationToken.None));
+
         _mockBookRepository.Verify(repo => repo.UpdateBookById(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
     }
 
@@ -90,7 +118,7 @@ public class BorrowBookCommandHandlerTests
 
         Guid bookId = Guid.NewGuid();
         Guid memberId = Guid.NewGuid();
-        BorrowBookCommand command = new(bookId, memberId);
+        BorrowBookCommand command = new(memberId);
 
         Book book = new(bookId)
         {
@@ -101,10 +129,16 @@ public class BorrowBookCommandHandlerTests
 
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync(book);
         _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ReturnsAsync((Member?)null);
+        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
+        mockHttpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            { "id", bookId.ToString() }
+        };
+        _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
 
-        string result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal("Member not found.", result);
+        Exception exception = await Assert.ThrowsAsync<MemberNotFoundException>(() =>
+        _handler.Handle(command, CancellationToken.None));
         _mockBookRepository.Verify(repo => repo.UpdateBookById(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
     }
 

@@ -1,5 +1,6 @@
 using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
 
@@ -17,17 +18,6 @@ public class GetBookByIdQueryHandler(IBookRepository bookRepository) : IRequestH
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Book?> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            Book? result = await _bookRepository.GetBookById(request.BookId);
-            return result;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return null;
-        }
-    }
+    public async Task<Book?> Handle(GetBookByIdQuery request, CancellationToken cancellationToken) => await _bookRepository.GetBookById(request.Id) ?? throw new BookNotFoundException();
+
 }

@@ -16,16 +16,6 @@ public class DeleteMemberCommandHandler(IMemberRepository memberRepository) : IR
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<bool> Handle(DeleteMemberCommand request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _memberRepository.DeleteMemberById(request.MemberId);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return false;
-        }
-    }
+    public async Task<bool> Handle(DeleteMemberCommand request, CancellationToken cancellationToken) => await _memberRepository.DeleteMemberById(request.Id);
+
 }

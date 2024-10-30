@@ -1,5 +1,6 @@
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
 
@@ -19,15 +20,13 @@ public class ReturnBookCommandHandler(IBookRepository bookRepository) : IRequest
     /// <returns></returns>
     public async Task<string> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
     {
-        Book? book = await _bookRepository.GetBookById(request.BookId);
+        Book? book = await _bookRepository.GetBookById(request.Id) ?? throw new BookNotFoundException();
 
-        if (book is null) return "Book not found.";
-
-        if (!book.IsBorrowed) return "Book is not currently borrowed.";
+        if (!book.IsBorrowed) throw new BookIsNotCurrentlyBorrowedException();
 
         book.Update(book.Title, book.Author, false, null, null);
 
-        await _bookRepository.UpdateBookById(request.BookId, book);
+        await _bookRepository.UpdateBookById(request.Id, book);
 
         return "Book returned successfully.";
     }

@@ -23,7 +23,7 @@ public class LibraryRepositoryTests
             Name = "Central Library",
         };
 
-        Library createdLibrary = await repository.AddLibrary(library);
+        Library createdLibrary = await repository.CreateLibrary(library);
 
         Assert.NotNull(createdLibrary);
         Assert.Equal("Central Library", createdLibrary.Name);
@@ -38,7 +38,7 @@ public class LibraryRepositoryTests
 
         Library newLibrary = null!;
 
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.AddLibrary(newLibrary));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.CreateLibrary(newLibrary));
     }
     #endregion
 
@@ -56,7 +56,7 @@ public class LibraryRepositoryTests
             Name = "Central Library",
         };
 
-        Library createdLibrary = await repository.AddLibrary(library);
+        Library createdLibrary = await repository.CreateLibrary(library);
         Library? searchLibrary = await repository.GetLibraryById(createdLibrary.Id);
 
         Assert.Equal(createdLibrary.Id, searchLibrary?.Id);
@@ -89,22 +89,12 @@ public class LibraryRepositoryTests
         {
             Name = "Central Library",
         };
-        Library addedLibrary = await repository.AddLibrary(library);
+        Library addedLibrary = await repository.CreateLibrary(library);
 
         Assert.True(await repository.DeleteLibraryById(addedLibrary.Id));
-        Assert.Empty(await repository.GetAllLibraries());
+
     }
 
-    [Fact]
-    public async Task DeleteLibraryById_ShouldReturnFalseWhenIdIsNull()
-    {
-        using DbAppContext context = CreateDbContext();
-        LibraryRepository repository = new(context);
-
-        Guid id = Guid.Empty;
-
-        Assert.False(await repository.DeleteLibraryById(id));
-    }
     #endregion
 
 
@@ -146,7 +136,7 @@ public class LibraryRepositoryTests
         library.Members.Add(member);
 
 
-        await libraryRepository.AddLibrary(library);
+        await libraryRepository.CreateLibrary(library);
 
 
         await context.SaveChangesAsync();

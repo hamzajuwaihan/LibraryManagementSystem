@@ -8,17 +8,6 @@ namespace ManagementLibrarySystem.Application.QueryHandlers.MemberQueryHandlers;
 public class GetMemberByIdQueryHandler(IMemberRepository memberRepository) : IRequestHandler<GetMemberByIdQuery, Member?>
 {
     private readonly IMemberRepository _memberRepository = memberRepository;
-    public async Task<Member?> Handle(GetMemberByIdQuery request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            Member? result = await _memberRepository.GetMemberById(request.MemberId);
-            return result;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            throw;
-        }
-    }
+    public async Task<Member?> Handle(GetMemberByIdQuery request, CancellationToken cancellationToken) => await _memberRepository.GetMemberById(request.MemberId);
+
 }

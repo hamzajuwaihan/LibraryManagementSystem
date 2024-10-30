@@ -8,13 +8,13 @@ public interface IBookRepository
 
     Task<Book?> UpdateBookById(Guid guid, Book book);
 
-    Task<IEnumerable<Book>> GetAllBooks();
+    IQueryable<Book> GetAllBooks();
 
     Task<bool> DeleteBookById(Guid id);
 
-    Task<Book> AddBook(Book book);
+    Task<Book> CreateBook(Book book);
 
-    Task<List<Book>> GetAllBorrowedBooks();
+    IQueryable<Book> GetAllBorrowedBooks();
 
     Task<Book?> PatchBookById(Guid id, Book book);
 }

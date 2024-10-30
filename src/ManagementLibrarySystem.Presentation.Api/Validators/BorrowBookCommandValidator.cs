@@ -1,7 +1,7 @@
 using FluentValidation;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 
-namespace ManagementLibrarySystem.Presentation.Api.Abstractions;
+namespace ManagementLibrarySystem.Presentation.Api.Validators;
 
 public class BorrowBookCommandValidator : AbstractValidator<BorrowBookCommand>
 {
@@ -10,10 +10,6 @@ public class BorrowBookCommandValidator : AbstractValidator<BorrowBookCommand>
     /// </summary>
     public BorrowBookCommandValidator()
     {
-        RuleFor(command => command.BookId)
-            .NotEmpty().WithMessage("Book ID is required")
-            .Must(BeAValidGuid).WithMessage("Book ID must be a valid GUID");
-
         RuleFor(command => command.MemberId)
             .NotEmpty().WithMessage("Member ID is required")
             .Must(BeAValidGuid).WithMessage("Member ID must be a valid GUID");

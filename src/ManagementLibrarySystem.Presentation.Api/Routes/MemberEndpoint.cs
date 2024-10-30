@@ -13,7 +13,7 @@ public static class MemberEndpoint
 {
     public static void MapMemberEndpoint(this IEndpointRouteBuilder app)
     {
-        RouteGroupBuilder group = app.MapGroup("api/member");
+        RouteGroupBuilder group = app.MapGroup("member");
 
         group.MapPost("", async (AddMemberCommand command, IMediator _mediator) =>
         {
@@ -21,8 +21,8 @@ public static class MemberEndpoint
             if (command == null) return Results.BadRequest("Library data is required");
 
             Member result = await _mediator.Send(command);
-            
-            return Results.Created($"/api/member/{result.Id}", result);
+
+            return Results.Created($"member/{result.Id}", result);
         })
         .WithTags("Member")
         .Produces<Library>(StatusCodes.Status201Created)
@@ -59,19 +59,17 @@ public static class MemberEndpoint
         .Produces<Book>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("", async (IMediator _mediator) =>
+        group.MapGet("", async (IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>
         {
-            GetAllMembersQuery query = new GetAllMembersQuery();
+            GetAllMembersQuery query = new() { PageNumber = pageNumber, PageSize = pageSize };
 
             List<Member> members = await _mediator.Send(query);
-
-            members.ForEach(library => Console.WriteLine(library.Id));
 
             return Results.Ok(members);
         })
         .WithTags("Member")
         .Produces<List<Book>>(StatusCodes.Status200OK);
-        
+
         group.MapPost("add-library-member", async (AddLibraryMemberCommand command, IMediator _mediator) =>
         {
             if (command == null) return Results.BadRequest("Library and Member data are required.");

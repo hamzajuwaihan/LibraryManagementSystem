@@ -1,5 +1,6 @@
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Library;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
 
@@ -22,24 +23,17 @@ public class AddBookCommandHandler(IBookRepository bookRepository, ILibraryRepos
     /// <returns></returns>
     public async Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            Library? libary = await _libraryRepository.GetLibraryById(request.LibraryId) ?? throw new Exception($"Library with ID {request.LibraryId} does not exist.");
 
-            Book newbook = new(Guid.NewGuid())
-            {
-                Title = request.Title,
-                Author = request.Author,
-                BorrowedBy = null,
-                LibraryId = libary.Id
-            };
+        Library library = await _libraryRepository.GetLibraryById(request.LibraryId) ?? throw new LibraryNotFoundException();
 
-            return await _bookRepository.AddBook(newbook);
-        }
-        catch (Exception e)
+        Book book = new(Guid.NewGuid())
         {
-            Console.WriteLine(e.Message);
-            throw;
-        }
+            Title = request.Title,
+            Author = request.Author,
+            BorrowedBy = null,
+            LibraryId = library.Id
+        };
+
+        return await _bookRepository.CreateBook(book);
     }
 }

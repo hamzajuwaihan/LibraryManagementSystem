@@ -16,17 +16,18 @@ public class GetAllBooksQueryHandlerTests
         _mockBookRepository = new Mock<IBookRepository>();
         _handler = new GetAllBooksQueryHandler(_mockBookRepository.Object);
     }
-
     [Fact]
     public async Task Handle_WhenCalled_ReturnsListOfBooks()
     {
+        // Create a list of books
         List<Book> books = new List<Book>
-        {
-            new(Guid.NewGuid()) { Title = "Book 1", Author = "Author 1" },
-            new(Guid.NewGuid()) { Title = "Book 2", Author = "Author 2" }
-        };
+    {
+        new(Guid.NewGuid()) { Title = "Book 1", Author = "Author 1" },
+        new(Guid.NewGuid()) { Title = "Book 2", Author = "Author 2" }
+    };
 
-        _mockBookRepository.Setup(repo => repo.GetAllBooks()).ReturnsAsync(books);
+        // Setup the mock to return IQueryable<Book>
+        _mockBookRepository.Setup(repo => repo.GetAllBooks()).Returns(books.AsQueryable());
 
         GetAllBooksQuery query = new GetAllBooksQuery();
 
@@ -36,15 +37,4 @@ public class GetAllBooksQueryHandlerTests
         Assert.Equal(2, result.Count);
     }
 
-    [Fact]
-    public async Task Handle_WhenExceptionThrown_ReturnsEmptyList()
-    {
-        _mockBookRepository.Setup(repo => repo.GetAllBooks()).ThrowsAsync(new Exception("Database error"));
-
-        GetAllBooksQuery query = new GetAllBooksQuery();
-
-        List<Book> result = await _handler.Handle(query, CancellationToken.None);
-
-        Assert.Empty(result);
-    }
 }

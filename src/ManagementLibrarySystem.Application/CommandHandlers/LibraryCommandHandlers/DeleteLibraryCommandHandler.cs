@@ -16,17 +16,6 @@ public class DeleteLibraryCommandHandler(ILibraryRepository libraryRepository) :
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<bool> Handle(DeleteLibraryCommand request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _libraryRepository.DeleteLibraryById(request.LibraryId);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return false;
-        }
+    public async Task<bool> Handle(DeleteLibraryCommand request, CancellationToken cancellationToken) => await _libraryRepository.DeleteLibraryById(request.Id);
 
-    }
 }

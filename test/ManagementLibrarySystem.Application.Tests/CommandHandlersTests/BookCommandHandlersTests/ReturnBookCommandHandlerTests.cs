@@ -1,6 +1,7 @@
 using ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandlers;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 
 namespace ManagementLibrarySystem.Application.Test.CommandHandlersTests.BookCommandHandlersTests;
@@ -32,20 +33,18 @@ public class ReturnBookCommandHandlerTests
     }
 
     [Fact]
-    public async Task ReturnBook_BookNotFound_ReturnsNotFoundMessage()
+    public async Task ReturnBook_BookNotFound_ReturnsBookNotFoundException()
     {
         Guid bookId = Guid.NewGuid();
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync((Book?)null);
 
         ReturnBookCommand command = new(bookId);
 
-        string result = await _handler.Handle(command, CancellationToken.None);
-
-        Assert.Equal("Book not found.", result);
+        await Assert.ThrowsAsync<BookNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
-    public async Task ReturnBook_BookNotCurrentlyBorrowed_ReturnsNotBorrowedMessage()
+    public async Task ReturnBook_BookNotCurrentlyBorrowed_ReturnsBookIsNotCurrentlyBorrowedException()
     {
         Guid bookId = Guid.NewGuid();
         Book notBorrowedBook = new(bookId) { Title = "Test Book", Author = "Author", IsBorrowed = false };
@@ -53,8 +52,7 @@ public class ReturnBookCommandHandlerTests
 
         ReturnBookCommand command = new(bookId);
 
-        string result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal("Book is not currently borrowed.", result);
+        await Assert.ThrowsAsync<BookIsNotCurrentlyBorrowedException>(() => _handler.Handle(command, CancellationToken.None));
     }
 }

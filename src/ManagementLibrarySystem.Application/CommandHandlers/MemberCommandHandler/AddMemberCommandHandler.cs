@@ -19,21 +19,14 @@ public class AddMemberCommandHandler(IMemberRepository memberRepository) : IRequ
     /// <returns></returns>
     public async Task<Member> Handle(AddMemberCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            Member newMember = new(Guid.NewGuid())
-            {
-                Name = request.Name,
-                Email = request.Email,
-            };
 
-            return await _memberRepository.AddMember(newMember);
-        }
-        catch (Exception e)
+        Member newMember = new(Guid.NewGuid())
         {
+            Name = request.Name,
+            Email = request.Email,
+        };
 
-            Console.WriteLine(e.Message);
-            throw;
-        }
+        return await _memberRepository.CreateMember(newMember);
+
     }
 }

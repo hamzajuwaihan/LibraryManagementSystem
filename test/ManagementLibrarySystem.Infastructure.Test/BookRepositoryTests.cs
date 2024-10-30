@@ -23,7 +23,7 @@ public class BookRepositoryTests
             Author = "Author Name",
         };
 
-        Book createdBook = await repository.AddBook(book);
+        Book createdBook = await repository.CreateBook(book);
 
         Assert.NotNull(createdBook);
         Assert.Equal("Sample Book", createdBook.Title);
@@ -37,9 +37,9 @@ public class BookRepositoryTests
         using DbAppContext context = CreateDbContext();
         BookRepository repository = new(context);
 
-        Book newBook = null!;
+        Book book = null!;
 
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.AddBook(newBook));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.CreateBook(book));
 
     }
     #endregion
@@ -61,7 +61,7 @@ public class BookRepositoryTests
         };
 
 
-        Book createdBook = await repository.AddBook(book);
+        Book createdBook = await repository.CreateBook(book);
         Book? searchBook = await repository.GetBookById(createdBook.Id);
 
 
@@ -88,11 +88,10 @@ public class BookRepositoryTests
             Author = "Author Two"
         };
 
-        await repository.AddBook(book1);
-        await repository.AddBook(book2);
+        await repository.CreateBook(book1);
+        await repository.CreateBook(book2);
 
-        IEnumerable<Book> books = await repository.GetAllBooks();
-
+        List<Book> books = await repository.GetAllBooks().ToListAsync();
         Assert.NotNull(books);
         Assert.Equal(2, books.Count());
         Assert.Contains(books, b => b.Title == "Book One" && b.Author == "Author One");
@@ -127,23 +126,12 @@ public class BookRepositoryTests
             Title = "Sample Book",
             Author = "Author Name",
         };
-        Book addedBook = await repository.AddBook(book);
+        Book addedBook = await repository.CreateBook(book);
 
         Assert.True(await repository.DeleteBookById(addedBook.Id));
-        Assert.Empty(await repository.GetAllBooks());
+        Assert.Empty(await repository.GetAllBooks().ToListAsync());
     }
 
-    [Fact]
-    public async Task DeleteBookById_ShouldReturnFalseWhenIdIsNull()
-    {
-
-        using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
-
-        Guid id = Guid.Empty;
-
-        Assert.False(await repository.DeleteBookById(id));
-    }
     #endregion
 
     #region UpdateBookTests
@@ -153,20 +141,19 @@ public class BookRepositoryTests
         using DbAppContext context = CreateDbContext();
         BookRepository repository = new(context);
 
-        // Arrange
         Book book = new(Guid.NewGuid())
         {
             Title = "Original Title",
             Author = "Original Author"
         };
 
-        await repository.AddBook(book);
+        await repository.CreateBook(book);
 
 
         book.Update("Updated Title", "Updated Author", book.IsBorrowed, book.BorrowedDate, book.BorrowedBy);
         Book? updatedBook = await repository.UpdateBookById(book.Id, book);
 
- 
+
         Assert.NotNull(updatedBook);
         Assert.Equal("Updated Title", updatedBook?.Title);
         Assert.Equal("Updated Author", updatedBook?.Author);
@@ -188,7 +175,7 @@ public class BookRepositoryTests
             BorrowedBy = null
         };
 
-        await repository.AddBook(book);
+        await repository.CreateBook(book);
 
         Book patchBook = new(book.Id)
         {

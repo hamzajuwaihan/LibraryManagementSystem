@@ -1,7 +1,11 @@
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
+using ManagementLibrarySystem.Domain.Exceptions.Member;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandlers;
 /// <summary>
@@ -9,10 +13,13 @@ namespace ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandler
 /// </summary>
 /// <param name="bookRepository"></param>
 /// <param name="memberRepository"></param>
-public class BorrowBookCommandHandler(IBookRepository bookRepository, IMemberRepository memberRepository) : IRequestHandler<BorrowBookCommand, string>
+public class BorrowBookCommandHandler(IBookRepository bookRepository, IMemberRepository memberRepository, IHttpContextAccessor httpContextAccessor) : IRequestHandler<BorrowBookCommand, string>
 {
     private readonly IBookRepository _bookRepository = bookRepository;
     private readonly IMemberRepository _memberRepository = memberRepository;
+
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
 
     /// <summary>
     /// Hander function to handler BorrowBookCommand
@@ -22,19 +29,19 @@ public class BorrowBookCommandHandler(IBookRepository bookRepository, IMemberRep
     /// <returns></returns>
     public async Task<string> Handle(BorrowBookCommand request, CancellationToken cancellationToken)
     {
-        Book? book = await _bookRepository.GetBookById(request.BookId);
+        string? BookId = _httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString();
 
-        if (book is null) return "Book not found.";
+        if (BookId == null || !Guid.TryParse(BookId, out Guid bookToBorrow)) throw new ArgumentException("Invalid or missing 'id' in route.");
 
-        if (book.IsBorrowed) return "Book is already borrowed.";
+        Book? book = await _bookRepository.GetBookById(bookToBorrow) ?? throw new BookNotFoundException();
 
-        Member? member = await _memberRepository.GetMemberById(request.MemberId);
+        if (book!.IsBorrowed) throw new BookAlreadyBorrowedException();
 
-        if (member is null) return "Member not found.";
+        Member? member = await _memberRepository.GetMemberById(request.MemberId) ?? throw new MemberNotFoundException();
 
-        book.Update(book.Title, book.Author, true, DateTime.UtcNow, request.MemberId);
+        book.Update(book.Title, book.Author, true, DateTime.UtcNow, member.Id);
 
-        await _bookRepository.UpdateBookById(request.BookId, book);
+        await _bookRepository.UpdateBookById(bookToBorrow, book);
 
         return "Book borrowed successfully.";
     }

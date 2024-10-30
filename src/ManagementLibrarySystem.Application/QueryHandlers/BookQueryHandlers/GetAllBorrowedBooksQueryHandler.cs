@@ -2,6 +2,7 @@ using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagementLibrarySystem.Application.QueryHandlers.BookQueryHandlers;
 /// <summary>
@@ -20,16 +21,16 @@ public class GetAllBorrowedBooksQueryHandler(IBookRepository bookRepository) : I
     /// <returns></returns>
     public async Task<List<Book>> Handle(GetAllBorrowedBooksQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            List<Book> borrowedBooks = await _bookRepository.GetAllBorrowedBooks();
-            return borrowedBooks;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
+        int skip = (request.PageNumber - 1) * request.PageSize;
 
-            return [];
-        }
+        List<Book> books = await _bookRepository
+            .GetAllBorrowedBooks()
+            .Skip(skip)
+            .Take(request.PageSize)
+            .Where(book => book.IsBorrowed == true)
+            .ToListAsync();
+
+        return books;
     }
+
 }
