@@ -2,6 +2,7 @@
 using ManagementLibrarySystem.Application.Queries.MemberQueries;
 using ManagementLibrarySystem.Application.QueryHandlers.MemberQueryHandlers;
 using ManagementLibrarySystem.Domain.Entities;
+using ManagementLibrarySystem.Domain.Exceptions.Member;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 
 namespace ManagementLibrarySystem.Application.Test.QueryHandlersTests.MemberQueryHandlersTests;
@@ -32,15 +33,14 @@ public class GetMemberByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenMemberDoesNotExist_ReturnsNull()
+    public async Task Handle_WhenMemberDoesNotExist_MemberNotFoundException()
     {
         Guid memberId = Guid.NewGuid();
-        _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ReturnsAsync((Member?)null);
+        _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ThrowsAsync(new MemberNotFoundException());
+
         GetMemberByIdQuery query = new(memberId);
 
-        Member? result = await _handler.Handle(query, CancellationToken.None);
-
-        Assert.Null(result);
+        await Assert.ThrowsAsync<MemberNotFoundException>(async () => await _handler.Handle(query, CancellationToken.None));
     }
 
     [Fact]

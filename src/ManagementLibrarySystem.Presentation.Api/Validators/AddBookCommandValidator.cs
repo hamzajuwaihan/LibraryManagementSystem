@@ -1,4 +1,3 @@
-
 using FluentValidation;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 

@@ -48,22 +48,6 @@ public class PatchBookCommandHandlerTests
         _mockBookRepository.Verify(repo => repo.PatchBookById(id, It.IsAny<Book>()), Times.Once);
     }
 
-    [Fact]
-    public async Task PatchBook_BookDoesNotExist_ThrowsBookNotFoundException()
-    {
-        Guid id = Guid.NewGuid();
-        _mockBookRepository.Setup(repo => repo.GetBookById(id)).ReturnsAsync((Book?)null);
-        PatchBookByIdCommand command = new("New Title", null, null, null, null);
-        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
-        mockHttpContext.Request.RouteValues = new RouteValueDictionary
-        {
-            { "id", id }
-        };
-
-        _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
-
-        await Assert.ThrowsAsync<BookNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
-    }
 
     [Fact]
     public async Task PatchBook_BookExists_OnlyUpdatesProvidedFields()

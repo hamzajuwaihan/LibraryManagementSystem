@@ -24,7 +24,7 @@ public class AddBookCommandHandler(IBookRepository bookRepository, ILibraryRepos
     public async Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
 
-        Library library = await _libraryRepository.GetLibraryById(request.LibraryId) ?? throw new LibraryNotFoundException();
+        Library library = await _libraryRepository.GetLibraryById(request.LibraryId);
 
         Book book = new(Guid.NewGuid())
         {

@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ManagementLibrarySystem.Domain\ManagementLibrarySystem.Domain.csproj" />
-    <ProjectReference Include="..\..\src\ManagementLibrarySystem.Infrastructure.EFCore\ManagementLibrarySystem.Infrastructure.EFCore.csproj" />
     <ProjectReference Include="..\..\src\ManagementLibrarySystem.Infrastructure\ManagementLibrarySystem.Infrastructure.csproj" />
   </ItemGroup>
 

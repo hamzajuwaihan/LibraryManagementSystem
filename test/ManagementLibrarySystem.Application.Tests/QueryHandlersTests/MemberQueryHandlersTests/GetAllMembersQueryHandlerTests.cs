@@ -26,7 +26,7 @@ public class GetAllMembersQueryHandlerTests
             new(Guid.NewGuid()) { Name = "Member 2" , Email= "Hamza@gmail.com" }
         };
 
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).Returns(expectedMembers.AsQueryable());
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ReturnsAsync(expectedMembers);
 
         GetAllMembersQuery query = new GetAllMembersQuery();
 
@@ -39,14 +39,14 @@ public class GetAllMembersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenNoMembersExist_ReturnsEmptyList()
     {
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).Returns(new List<Member>().AsQueryable());
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ReturnsAsync(new List<Member>());
 
         GetAllMembersQuery query = new GetAllMembersQuery();
 
         List<Member> result = await _handler.Handle(query, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Empty(result); 
+        Assert.Empty(result);
     }
 
     [Fact]

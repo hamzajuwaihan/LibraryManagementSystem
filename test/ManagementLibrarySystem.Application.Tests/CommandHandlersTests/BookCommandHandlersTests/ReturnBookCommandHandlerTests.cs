@@ -29,14 +29,14 @@ public class ReturnBookCommandHandlerTests
         string result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal("Book returned successfully.", result);
-        _mockBookRepository.Verify(repo => repo.UpdateBookById(bookId, It.Is<Book>(b => !b.IsBorrowed)), Times.Once);
+        _mockBookRepository.Verify(repo => repo.UpdateBook(bookId, It.Is<Book>(b => !b.IsBorrowed)), Times.Once);
     }
 
     [Fact]
     public async Task ReturnBook_BookNotFound_ReturnsBookNotFoundException()
     {
         Guid bookId = Guid.NewGuid();
-        _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync((Book?)null);
+        _mockBookRepository.Setup(repo => repo.GetBookById(bookId))!.ThrowsAsync(new BookNotFoundException());
 
         ReturnBookCommand command = new(bookId);
 

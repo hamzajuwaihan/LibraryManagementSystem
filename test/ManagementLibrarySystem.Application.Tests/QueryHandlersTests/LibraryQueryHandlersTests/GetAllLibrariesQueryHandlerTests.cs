@@ -26,7 +26,7 @@ public class GetAllLibrariesQueryHandlerTests
             new Library(Guid.NewGuid()) { Name = "Library Two" }
         };
 
-        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).Returns(libraries.AsQueryable());
+        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).ReturnsAsync(libraries);
 
         GetAllLibrariesQuery query = new();
 
@@ -42,7 +42,7 @@ public class GetAllLibrariesQueryHandlerTests
     [Fact]
     public async Task GetAllLibrariesQueryHandler_WhenNoLibrariesExist_ReturnsEmptyList()
     {
-        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).Returns(new List<Library>().AsQueryable());
+        _mockLibraryRepository.Setup(repo => repo.GetAllLibraries()).ReturnsAsync(new List<Library>());
 
         GetAllLibrariesQuery query = new();
 

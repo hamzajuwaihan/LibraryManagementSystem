@@ -39,7 +39,7 @@ public class GetLibraryByIdQueryHandlerTests
     {
         Guid libraryId = Guid.NewGuid();
 
-        _mockLibraryRepository.Setup(repo => repo.GetLibraryById(libraryId)).ReturnsAsync((Library?)null);
+        _mockLibraryRepository.Setup(repo => repo.GetLibraryById(libraryId)).ThrowsAsync(new LibraryNotFoundException());
 
         GetLibraryByIdQuery query = new GetLibraryByIdQuery(libraryId);
 

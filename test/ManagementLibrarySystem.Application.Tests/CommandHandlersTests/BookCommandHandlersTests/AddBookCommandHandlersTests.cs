@@ -57,7 +57,7 @@ public class AddBookCommandHandlerTests
 
         _mockLibraryRepository
             .Setup(repo => repo.GetLibraryById(libraryId))
-            .ReturnsAsync((Library?)null);
+            .ThrowsAsync(new LibraryNotFoundException());
 
 
         Exception exception = await Assert.ThrowsAsync<LibraryNotFoundException>(() =>

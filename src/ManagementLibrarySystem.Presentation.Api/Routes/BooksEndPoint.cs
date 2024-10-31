@@ -36,8 +36,6 @@ public static class BooksEndPoint
 
             Book book = await _mediator.Send(query);
 
-            if (book is null) return Results.NotFound();
-
             return Results.Ok(book);
         })
         .WithTags("Book")
@@ -50,12 +48,11 @@ public static class BooksEndPoint
             DeleteBookCommand command = new DeleteBookCommand(id);
 
             ValidationResult validationResult = await validator.ValidateAsync(command);
+            
             if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);
 
 
             bool result = await _mediator.Send(command);
-
-            if (!result) return Results.NotFound();
 
             return Results.NoContent();
         })
@@ -74,7 +71,7 @@ public static class BooksEndPoint
         .WithTags("Book")
         .Produces<List<Book>>(StatusCodes.Status200OK);
 
-        group.MapPost("/{id}/borrow", async (Guid id, BorrowBookCommand request, IValidator<BorrowBookCommand> validator, IMediator mediator) =>
+        group.MapPost("/{id:guid}/borrow", async (Guid id, BorrowBookCommand request, IValidator<BorrowBookCommand> validator, IMediator mediator) =>
         {
             ValidationResult validationResult = await validator.ValidateAsync(request);
 
@@ -88,15 +85,14 @@ public static class BooksEndPoint
 
 
 
-        group.MapPost("/{id}/return", async (Guid id, ReturnBookCommand command, IMediator mediator) =>
+        group.MapPost("/{id:guid}/return", async (Guid id, IMediator mediator) =>
         {
-            if (id != command.Id) return Results.BadRequest("Book ID in URL does not match the provided Book ID.");
+            string result = await mediator.Send(new ReturnBookCommand(id));
 
-            string result = await mediator.Send(command);
-
-            return Results.Ok(result);
+            return Results.Ok(new { message = result });
         })
-        .WithTags("ReturnBook");
+        .WithTags("Book");
+
 
         group.MapGet("/borrowed", async (IMediator mediator, int pageNumber = 1, int pageSize = 10) =>
         {

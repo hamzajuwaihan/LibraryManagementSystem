@@ -1,7 +1,7 @@
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Domain.Exceptions.Library;
 using ManagementLibrarySystem.Domain.Exceptions.Member;
-using ManagementLibrarySystem.Infrastructure.EFCore.DB;
+using ManagementLibrarySystem.Infrastructure.DB;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using Microsoft.EntityFrameworkCore;
 namespace ManagementLibrarySystem.Infrastructure.Repositories;
@@ -12,6 +12,10 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 
     public async Task<Library> CreateLibrary(Library library)
     {
+        bool nameExists = await _context.Libraries.AnyAsync(l => l.Name == library.Name);
+
+        if (nameExists) throw new DuplicateLibraryNameException();
+
         await _context.Libraries.AddAsync(library);
 
         await _context.SaveChangesAsync();
@@ -30,9 +34,21 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
         return true;
     }
 
-    public IQueryable<Library> GetAllLibraries() =>  _context.Libraries;
+    public async Task<List<Library>> GetAllLibraries(int pageSize, int pageNumber)
+    {
+        int skip = (pageNumber - 1) * pageSize;
 
-    public async Task<Library?> GetLibraryById(Guid id) => await _context.Libraries.Include(library => library.Books).FirstOrDefaultAsync(library => library.Id == id);
+        return await _context.Libraries
+            .OrderBy(l => l.Name)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Library>> GetAllLibraries() => await _context.Libraries.ToListAsync();
+
+
+    public async Task<Library> GetLibraryById(Guid id) => await _context.Libraries.Include(library => library.Books).FirstOrDefaultAsync(library => library.Id == id) ?? throw new LibraryNotFoundException();
 
 
     public async Task<Library?> UpdateLibrary(Library library)

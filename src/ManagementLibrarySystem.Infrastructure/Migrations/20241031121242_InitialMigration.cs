@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
+namespace ManagementLibrarySystem.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,37 +29,28 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    LibraryId = table.Column<Guid>(type: "uuid", nullable: true)
+                    Email = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Members", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Members_Libraries_LibraryId",
-                        column: x => x.LibraryId,
-                        principalTable: "Libraries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Books",
                 columns: table => new
                 {
-                    BookID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     Author = table.Column<string>(type: "text", nullable: false),
                     IsBorrowed = table.Column<bool>(type: "boolean", nullable: false),
                     BorrowedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     BorrowedBy = table.Column<Guid>(type: "uuid", nullable: true),
-                    LibraryId = table.Column<Guid>(type: "uuid", nullable: true),
-                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                    LibraryId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Books", x => x.BookID);
+                    table.PrimaryKey("PK_Books", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Books_Libraries_LibraryId",
                         column: x => x.LibraryId,
@@ -71,7 +62,31 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                         column: x => x.BorrowedBy,
                         principalTable: "Members",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LibraryMembers",
+                columns: table => new
+                {
+                    LibrariesId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MembersId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LibraryMembers", x => new { x.LibrariesId, x.MembersId });
+                    table.ForeignKey(
+                        name: "FK_LibraryMembers_Libraries_LibrariesId",
+                        column: x => x.LibrariesId,
+                        principalTable: "Libraries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_LibraryMembers_Members_MembersId",
+                        column: x => x.MembersId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -85,9 +100,21 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                 column: "LibraryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Members_LibraryId",
+                name: "IX_Libraries_Name",
+                table: "Libraries",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LibraryMembers_MembersId",
+                table: "LibraryMembers",
+                column: "MembersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Members_Email",
                 table: "Members",
-                column: "LibraryId");
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -97,10 +124,13 @@ namespace ManagementLibrarySystem.Infrastructure.EFCore.Migrations
                 name: "Books");
 
             migrationBuilder.DropTable(
-                name: "Members");
+                name: "LibraryMembers");
 
             migrationBuilder.DropTable(
                 name: "Libraries");
+
+            migrationBuilder.DropTable(
+                name: "Members");
         }
     }
 }

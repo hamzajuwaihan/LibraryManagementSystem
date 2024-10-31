@@ -29,19 +29,19 @@ public class BorrowBookCommandHandler(IBookRepository bookRepository, IMemberRep
     /// <returns></returns>
     public async Task<string> Handle(BorrowBookCommand request, CancellationToken cancellationToken)
     {
-        string? BookId = _httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString();
+        string id = _httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString()!;
 
-        if (BookId == null || !Guid.TryParse(BookId, out Guid bookToBorrow)) throw new ArgumentException("Invalid or missing 'id' in route.");
+        Guid bookId = Guid.Parse(id);
 
-        Book? book = await _bookRepository.GetBookById(bookToBorrow) ?? throw new BookNotFoundException();
+        Book? book = await _bookRepository.GetBookById(bookId);
 
         if (book!.IsBorrowed) throw new BookAlreadyBorrowedException();
 
-        Member? member = await _memberRepository.GetMemberById(request.MemberId) ?? throw new MemberNotFoundException();
+        Member member = await _memberRepository.GetMemberById(request.MemberId);
 
-        book.Update(book.Title, book.Author, true, DateTime.UtcNow, member.Id);
+        book.Borrow(member.Id);
 
-        await _bookRepository.UpdateBookById(bookToBorrow, book);
+        await _bookRepository.UpdateBook(bookId, book);
 
         return "Book borrowed successfully.";
     }

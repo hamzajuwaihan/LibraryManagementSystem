@@ -19,15 +19,13 @@ public class GetAllBooksQueryHandlerTests
     [Fact]
     public async Task Handle_WhenCalled_ReturnsListOfBooks()
     {
-        // Create a list of books
         List<Book> books = new List<Book>
     {
         new(Guid.NewGuid()) { Title = "Book 1", Author = "Author 1" },
         new(Guid.NewGuid()) { Title = "Book 2", Author = "Author 2" }
     };
 
-        // Setup the mock to return IQueryable<Book>
-        _mockBookRepository.Setup(repo => repo.GetAllBooks()).Returns(books.AsQueryable());
+        _mockBookRepository.Setup(repo => repo.GetAllBooks()).ReturnsAsync(books);
 
         GetAllBooksQuery query = new GetAllBooksQuery();
 

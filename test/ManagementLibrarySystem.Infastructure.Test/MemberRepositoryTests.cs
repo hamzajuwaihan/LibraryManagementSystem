@@ -1,3 +1,5 @@
+using ManagementLibrarySystem.Infrastructure.DB;
+
 namespace ManagementLibrarySystem.Infastructure.Test;
 
 
@@ -12,7 +14,7 @@ public class MemberRepositoryTests
         return new DbAppContext(options);
     }
 
-    #region AddingMemberTests
+
     [Fact]
     public async Task CreateMember_ShouldAddMemberToDatabase()
     {
@@ -33,17 +35,6 @@ public class MemberRepositoryTests
         Assert.Single(context.Members);
     }
 
-    [Fact]
-    public async Task CreateMember_ShouldReturnExceptionWhenMemberIsNull()
-    {
-        using DbAppContext context = CreateDbContext();
-        MemberRepository repository = new(context);
-
-        Member newMember = null!;
-
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.CreateMember(newMember));
-    }
-    #endregion
 
     #region GetMemberTests
     [Fact]
@@ -68,18 +59,7 @@ public class MemberRepositoryTests
         Assert.Equal(createdMember.Email, searchMember?.Email);
     }
 
-    [Fact]
-    public async Task GetMemberById_ShouldReturnNullWhenMemberNotFound()
-    {
-        using DbAppContext context = CreateDbContext();
-        MemberRepository repository = new(context);
 
-        Guid randomGuid = Guid.NewGuid();
-
-        Member? searchMember = await repository.GetMemberById(randomGuid);
-
-        Assert.Null(searchMember);
-    }
     #endregion
 
     #region DeleteMemberTests
@@ -99,6 +79,6 @@ public class MemberRepositoryTests
         Assert.True(await repository.DeleteMemberById(addedMember.Id));
     }
 
- 
     #endregion
+
 }

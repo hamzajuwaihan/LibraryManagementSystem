@@ -5,6 +5,7 @@ using System.Net;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using ManagementLibrarySystem.Application.Queries.BookQueries;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
 
 
 namespace ManagementLibrarySystem.Api.Test;
@@ -150,7 +151,12 @@ public class BookEndpointTests
     public async Task GetBookById_ReturnsNotFound_WhenBookDoesNotExist()
     {
         Guid bookId = Guid.NewGuid();
+        _mediatorMock
+        .Setup(m => m.Send(It.IsAny<GetBookByIdQuery>(), default))
+        .ThrowsAsync(new BookNotFoundException());
+
         HttpResponseMessage response = await _client.GetAsync($"/book/{bookId}");
+
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -158,6 +164,9 @@ public class BookEndpointTests
     public async Task DeleteBook_ReturnsNotFound_WhenBookDoesNotExist()
     {
         Guid bookId = Guid.NewGuid();
+        _mediatorMock
+        .Setup(m => m.Send(It.IsAny<DeleteBookCommand>(), default))
+        .ThrowsAsync(new BookNotFoundException());
 
         HttpResponseMessage response = await _client.DeleteAsync($"/book/{bookId}");
 
@@ -209,38 +218,30 @@ public class BookEndpointTests
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
-    [Fact]
-    public async Task ReturnBook_ReturnsBadRequest_WhenBookIdMismatch()
-    {
-        Guid bookId = Guid.NewGuid();
-        ReturnBookCommand command = new(bookId);
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{Guid.NewGuid()}/return", command);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
 
 
     [Fact]
     public async Task ReturnBook_ReturnsOk_WhenBookCanBeReturned()
     {
 
+
         Guid bookId = Guid.NewGuid();
 
         _mediatorMock
-             .Setup(m => m.Send(It.IsAny<ReturnBookCommand>(), It.IsAny<CancellationToken>()))
-             .ReturnsAsync("Book returned successfully.");
+            .Setup(m => m.Send(It.IsAny<ReturnBookCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Book returned successfully.");
 
 
-        ReturnBookCommand returnCommand = new(bookId);
-
-
-        HttpResponseMessage returnResponse = await _client.PostAsJsonAsync($"/book/{bookId}/return", returnCommand);
+        HttpResponseMessage returnResponse = await _client.PostAsJsonAsync($"/book/{bookId}/return", new { });
 
 
         Assert.Equal(HttpStatusCode.OK, returnResponse.StatusCode);
-        string returnResultMessage = await returnResponse.Content.ReadAsStringAsync();
-        Assert.Equal("\"Book returned successfully.\"", returnResultMessage);
+
+
+        Dictionary<string, string>? responseContent = await returnResponse.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        Assert.NotNull(responseContent);
+        Assert.Equal("Book returned successfully.", responseContent["message"]);
     }
 
 

@@ -18,17 +18,6 @@ public class GetAllBooksQueryHandler(IBookRepository bookRepository) : IRequestH
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
-    {
-        int skip = (request.PageNumber - 1) * request.PageSize;
-
-        List<Book> books = await _bookRepository
-            .GetAllBooks()
-            .Skip(skip)
-            .Take(request.PageSize)
-            .ToListAsync();
-
-        return books;
-    }
+    public async Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken) => await _bookRepository.GetAllBooks(request.PageSize, request.PageNumber);
 
 }

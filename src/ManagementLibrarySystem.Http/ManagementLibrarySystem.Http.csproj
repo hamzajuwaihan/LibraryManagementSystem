@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ManagementLibrarySystem.Infrastructure\ManagementLibrarySystem.Infrastructure.csproj" />
-    <ProjectReference Include="..\ManagementLibrarySystem.Infrastructure.EFCore\ManagementLibrarySystem.Infrastructure.EFCore.csproj" />
     <ProjectReference Include="..\ManagementLibrarySystem.Application\ManagementLibrarySystem.Application.csproj" />
     <ProjectReference Include="..\ManagementLibrarySystem.Presentation.Api\ManagementLibrarySystem.Presentation.Api.csproj" />
   </ItemGroup>

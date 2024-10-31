@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Domain.Primitives;
 
 namespace ManagementLibrarySystem.Domain.Entities;
@@ -13,6 +14,7 @@ public class Book : Entity
     public DateTime? BorrowedDate { get; set; }
     public Guid? BorrowedBy { get; set; }
     public Guid LibraryId { get; set; }
+    
     [JsonIgnore]
     public Library LibraryAssociated { get; set; } = null!;
 
@@ -56,5 +58,25 @@ public class Book : Entity
         IsBorrowed = isBorrowed;
         BorrowedDate = borrowedDate;
         BorrowedBy = borrowedBy;
+    }
+
+    public void Borrow(Guid? borrowedBy)
+    {
+        BorrowedDate = DateTime.UtcNow;
+
+        if (IsBorrowed == true) throw new BookAlreadyBorrowedException();
+
+        IsBorrowed = true;
+
+        BorrowedBy = borrowedBy;
+    }
+
+    public void Return()
+    {
+        if (IsBorrowed == false) throw new BookIsNotCurrentlyBorrowedException();
+
+        IsBorrowed = false;
+        BorrowedDate = null;
+        BorrowedBy = null;
     }
 }

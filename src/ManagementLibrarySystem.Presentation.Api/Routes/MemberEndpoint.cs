@@ -35,8 +35,6 @@ public static class MemberEndpoint
 
             bool result = await _mediator.Send(command);
 
-            if (!result) return Results.NotFound();
-
             return Results.NoContent();
 
         })
@@ -49,11 +47,9 @@ public static class MemberEndpoint
 
             GetMemberByIdQuery query = new(id);
 
-            Member book = await _mediator.Send(query);
+            Member member = await _mediator.Send(query);
 
-            if (book == null) return Results.NotFound();
-
-            return Results.Ok(book);
+            return Results.Ok(member);
         })
         .WithTags("Member")
         .Produces<Book>(StatusCodes.Status200OK)
@@ -68,7 +64,7 @@ public static class MemberEndpoint
             return Results.Ok(members);
         })
         .WithTags("Member")
-        .Produces<List<Book>>(StatusCodes.Status200OK);
+        .Produces<List<Member>>(StatusCodes.Status200OK);
 
         group.MapPost("add-library-member", async (AddLibraryMemberCommand command, IMediator _mediator) =>
         {
@@ -78,7 +74,9 @@ public static class MemberEndpoint
 
             if (!result) return Results.BadRequest("Failed to add member to the library. Either the library or member does not exist, or the member is already added.");
 
-            return Results.Created($"/api/member/add-library-member", "Member added to library successfully.");
+            return Results.Created($"/api/member/add-library-member", new {
+                message =  "Member added to library successfully."
+            });
         })
         .WithTags("LibraryMember")
         .Produces(StatusCodes.Status201Created)

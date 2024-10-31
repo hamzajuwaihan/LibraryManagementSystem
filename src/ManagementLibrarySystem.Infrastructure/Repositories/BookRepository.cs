@@ -1,6 +1,6 @@
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Domain.Exceptions.Book;
-using ManagementLibrarySystem.Infrastructure.EFCore.DB;
+using ManagementLibrarySystem.Infrastructure.DB;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using Microsoft.EntityFrameworkCore;
 namespace ManagementLibrarySystem.Infrastructure.Repositories;
@@ -28,11 +28,33 @@ public class BookRepository(DbAppContext context) : IBookRepository
         return true;
     }
 
-    public IQueryable<Book> GetAllBooks() => _context.Books;
+    public async Task<List<Book>> GetAllBooks(int pageSize, int pageNumber)
+    {
+        int skip = (pageNumber - 1) * pageSize;
 
-    public IQueryable<Book> GetAllBorrowedBooks() => _context.Books;
+        return await _context.Books
+            .OrderBy(b => b.Title)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+    public async Task<List<Book>> GetAllBooks() => await _context.Books.ToListAsync();
 
-    public async Task<Book?> GetBookById(Guid id) => await _context.Books.FirstOrDefaultAsync(book => book.Id == id);
+
+    public async Task<List<Book>> GetAllBorrowedBooks(int pageSize, int pageNumber)
+    {
+        int skip = (pageNumber - 1) * pageSize;
+
+        return await _context.Books
+            .Where(b => b.IsBorrowed == true)
+            .OrderBy(b => b.Title)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+    public async Task<List<Book>> GetAllBorrowedBooks() => await _context.Books.Where(b => b.IsBorrowed == true).ToListAsync();
+
+    public async Task<Book> GetBookById(Guid id) => await _context.Books.FirstOrDefaultAsync(book => book.Id == id) ?? throw new BookNotFoundException();
 
     public async Task<Book?> PatchBookById(Guid id, Book book)
     {
@@ -50,7 +72,7 @@ public class BookRepository(DbAppContext context) : IBookRepository
         return existingBook;
     }
 
-    public async Task<Book?> UpdateBookById(Guid id, Book book)
+    public async Task<Book?> UpdateBook(Guid id, Book book)
     {
         Book? originalBook = await _context.Books.FindAsync(id) ?? throw new BookNotFoundException();
 

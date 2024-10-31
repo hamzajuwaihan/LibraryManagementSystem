@@ -1,4 +1,4 @@
-using ManagementLibrarySystem.Infrastructure.EFCore.DB;
+using ManagementLibrarySystem.Infrastructure.DB;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;

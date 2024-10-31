@@ -20,6 +20,7 @@ public static class LibraryEndPoint
             if (command == null) return Results.BadRequest("Library data is required");
 
             Library result = await _mediator.Send(command);
+
             return Results.Created($"/{result.Id}", result);
         })
         .WithTags("Library")
@@ -32,8 +33,6 @@ public static class LibraryEndPoint
             DeleteLibraryCommand command = new(id);
 
             bool result = await _mediator.Send(command);
-
-            if (!result) return Results.NotFound();
 
             return Results.NoContent();
 
@@ -49,8 +48,6 @@ public static class LibraryEndPoint
 
             Library book = await _mediator.Send(query);
 
-            if (book == null) return Results.NotFound();
-
             return Results.Ok(book);
         })
         .WithTags("Library")
@@ -59,7 +56,8 @@ public static class LibraryEndPoint
 
         group.MapGet("", async(IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>
         {
-            GetAllLibrariesQuery query = new() { PageNumber = pageNumber, PageSize = pageSize }; ;
+            GetAllLibrariesQuery query = new() { PageNumber = pageNumber, PageSize = pageSize };
+            
             List<Library> libraries = await _mediator.Send(query);
 
             return Results.Ok(libraries);

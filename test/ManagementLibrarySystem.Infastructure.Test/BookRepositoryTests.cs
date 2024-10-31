@@ -1,3 +1,6 @@
+using ManagementLibrarySystem.Domain.Exceptions.Book;
+using ManagementLibrarySystem.Infrastructure.DB;
+
 namespace ManagementLibrarySystem.Infastructure.Test;
 
 public class BookRepositoryTests
@@ -91,7 +94,7 @@ public class BookRepositoryTests
         await repository.CreateBook(book1);
         await repository.CreateBook(book2);
 
-        List<Book> books = await repository.GetAllBooks().ToListAsync();
+        List<Book> books = await repository.GetAllBooks();
         Assert.NotNull(books);
         Assert.Equal(2, books.Count());
         Assert.Contains(books, b => b.Title == "Book One" && b.Author == "Author One");
@@ -107,9 +110,11 @@ public class BookRepositoryTests
 
         Guid randomGuid = Guid.NewGuid();
 
-        Book? searchBook = await repository.GetBookById(randomGuid);
 
-        Assert.Null(searchBook);
+        await Assert.ThrowsAsync<BookNotFoundException>(async () =>
+        {
+            await repository.GetBookById(randomGuid);
+        });
 
     }
 
@@ -129,7 +134,7 @@ public class BookRepositoryTests
         Book addedBook = await repository.CreateBook(book);
 
         Assert.True(await repository.DeleteBookById(addedBook.Id));
-        Assert.Empty(await repository.GetAllBooks().ToListAsync());
+        Assert.Empty(await repository.GetAllBooks());
     }
 
     #endregion
@@ -151,7 +156,7 @@ public class BookRepositoryTests
 
 
         book.Update("Updated Title", "Updated Author", book.IsBorrowed, book.BorrowedDate, book.BorrowedBy);
-        Book? updatedBook = await repository.UpdateBookById(book.Id, book);
+        Book? updatedBook = await repository.UpdateBook(book.Id, book);
 
 
         Assert.NotNull(updatedBook);

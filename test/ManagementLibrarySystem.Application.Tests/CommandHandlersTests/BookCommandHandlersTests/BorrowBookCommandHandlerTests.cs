@@ -53,12 +53,12 @@ public class BorrowBookCommandHandlerTests
 
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync(book);
         _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ReturnsAsync(member);
-        _mockBookRepository.Setup(repo => repo.UpdateBookById(bookId, It.IsAny<Book>())).ReturnsAsync(book);
+        _mockBookRepository.Setup(repo => repo.UpdateBook(bookId, It.IsAny<Book>())).ReturnsAsync(book);
 
         string result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal("Book borrowed successfully.", result);
-        _mockBookRepository.Verify(repo => repo.UpdateBookById(bookId, It.Is<Book>(b => b.IsBorrowed)), Times.Once);
+        _mockBookRepository.Verify(repo => repo.UpdateBook(bookId, It.Is<Book>(b => b.IsBorrowed)), Times.Once);
     }
 
     [Fact]
@@ -76,12 +76,13 @@ public class BorrowBookCommandHandlerTests
         };
         _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
 
-        _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync((Book?)null);
+        _mockBookRepository.Setup(repo => repo.GetBookById(bookId))
+            .ThrowsAsync(new BookNotFoundException());
 
         await Assert.ThrowsAsync<BookNotFoundException>(() =>
                  _handler.Handle(command, CancellationToken.None));
 
-        _mockBookRepository.Verify(repo => repo.UpdateBookById(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
+        _mockBookRepository.Verify(repo => repo.UpdateBook(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
     }
     [Fact]
     public async Task BorrowBook_ShouldReturnAlreadyBorrowedMessage_WhenBookIsAlreadyBorrowed()
@@ -109,11 +110,11 @@ public class BorrowBookCommandHandlerTests
         Exception exception = await Assert.ThrowsAsync<BookAlreadyBorrowedException>(() =>
          _handler.Handle(command, CancellationToken.None));
 
-        _mockBookRepository.Verify(repo => repo.UpdateBookById(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
+        _mockBookRepository.Verify(repo => repo.UpdateBook(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
     }
 
     [Fact]
-    public async Task BorrowBook_ShouldReturnMemberNotFound_WhenMemberDoesNotExist()
+    public async Task BorrowBook_ShouldReturnMemberNotFoundException_WhenMemberDoesNotExist()
     {
 
         Guid bookId = Guid.NewGuid();
@@ -128,7 +129,7 @@ public class BorrowBookCommandHandlerTests
         };
 
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ReturnsAsync(book);
-        _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ReturnsAsync((Member?)null);
+        _mockMemberRepository.Setup(repo => repo.GetMemberById(memberId)).ThrowsAsync(new MemberNotFoundException());
         DefaultHttpContext mockHttpContext = new DefaultHttpContext();
         mockHttpContext.Request.RouteValues = new RouteValueDictionary
         {
@@ -139,7 +140,7 @@ public class BorrowBookCommandHandlerTests
 
         Exception exception = await Assert.ThrowsAsync<MemberNotFoundException>(() =>
         _handler.Handle(command, CancellationToken.None));
-        _mockBookRepository.Verify(repo => repo.UpdateBookById(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
+        _mockBookRepository.Verify(repo => repo.UpdateBook(It.IsAny<Guid>(), It.IsAny<Book>()), Times.Never);
     }
 
 }

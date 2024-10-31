@@ -20,7 +20,6 @@ public class AddLibraryCommandHandler(ILibraryRepository libraryRepository) : IR
     public async Task<Library> Handle(AddLibraryCommand request, CancellationToken cancellationToken)
     {
 
-
         Library newLibrary = new(Guid.NewGuid())
         {
             Name = request.Name,

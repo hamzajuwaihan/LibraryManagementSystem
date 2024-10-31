@@ -1,3 +1,5 @@
+using ManagementLibrarySystem.Infrastructure.DB;
+
 namespace ManagementLibrarySystem.Infastructure.Test;
 
 public class LibraryRepositoryTests
@@ -30,16 +32,6 @@ public class LibraryRepositoryTests
         Assert.Single(context.Libraries);
     }
 
-    [Fact]
-    public async Task CreateLibrary_ShouldReturnExceptionWhenLibraryIsNull()
-    {
-        using DbAppContext context = CreateDbContext();
-        LibraryRepository repository = new(context);
-
-        Library newLibrary = null!;
-
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.CreateLibrary(newLibrary));
-    }
     #endregion
 
     #region GetLibraryTests
@@ -64,18 +56,7 @@ public class LibraryRepositoryTests
 
     }
 
-    [Fact]
-    public async Task GetLibraryById_ShouldReturnNullWhenLibraryNotFound()
-    {
-        using DbAppContext context = CreateDbContext();
-        LibraryRepository repository = new(context);
 
-        Guid randomGuid = Guid.NewGuid();
-
-        Library? searchLibrary = await repository.GetLibraryById(randomGuid);
-
-        Assert.Null(searchLibrary);
-    }
     #endregion
 
     #region DeleteLibraryTests

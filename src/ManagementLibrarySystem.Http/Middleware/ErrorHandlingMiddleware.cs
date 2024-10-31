@@ -1,5 +1,5 @@
-using System;
 using ManagementLibrarySystem.Domain.Exceptions.Book;
+using ManagementLibrarySystem.Domain.Exceptions.Library;
 using ManagementLibrarySystem.Domain.Exceptions.Member;
 
 namespace ManagementLibrarySystem.Http.Middleware;
@@ -29,6 +29,14 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         {
             _logger.LogError(ex, "Member not found.");
             await HandleExceptionAsync(context, StatusCodes.Status404NotFound, ex.Message);
+        }
+        catch(DuplicateEmailException ex){
+            _logger.LogError(ex,"Duplicate Email.");
+            await HandleExceptionAsync(context, StatusCodes.Status400BadRequest, ex.Message);
+        }
+        catch(DuplicateLibraryNameException ex){
+            _logger.LogError(ex, "Duplicate Library Name");
+            await HandleExceptionAsync(context, StatusCodes.Status400BadRequest, ex.Message);
         }
         catch (Exception ex)
         {

@@ -26,12 +26,12 @@ public class PatchBookByIdCommandHandler(IBookRepository bookRepository, IHttpCo
     /// <exception cref="KeyNotFoundException"></exception>
     public async Task<Book> Handle(PatchBookByIdCommand request, CancellationToken cancellationToken)
     {
-        string? id = _httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString();
+        string id = _httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString()!;
 
-        if (id == null || !Guid.TryParse(id, out Guid bookId)) throw new ArgumentException("Invalid or missing 'id' in route.");
-        
+        Guid bookId = Guid.Parse(id);
 
-        Book? book = await _bookRepository.GetBookById(bookId) ?? throw new BookNotFoundException();
+
+        Book book = await _bookRepository.GetBookById(bookId);
 
         book.Update(
             title: request.Title ?? book.Title,

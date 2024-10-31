@@ -20,17 +20,6 @@ public class GetAllBorrowedBooksQueryHandler(IBookRepository bookRepository) : I
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public async Task<List<Book>> Handle(GetAllBorrowedBooksQuery request, CancellationToken cancellationToken)
-    {
-        int skip = (request.PageNumber - 1) * request.PageSize;
-
-        List<Book> books = await _bookRepository
-            .GetAllBorrowedBooks()
-            .Skip(skip)
-            .Take(request.PageSize)
-            .Where(book => book.IsBorrowed == true)
-            .ToListAsync();
-
-        return books;
-    }
+    => await _bookRepository.GetAllBorrowedBooks(request.PageSize, request.PageNumber);
 
 }

@@ -13,17 +13,6 @@ public class GetAllLibrariesQueryHandler(ILibraryRepository libraryRepository) :
 {
     private readonly ILibraryRepository _libraryRepository = libraryRepository;
 
-    public async Task<List<Library>> Handle(GetAllLibrariesQuery request, CancellationToken cancellationToken) {
-
-    int skip = (request.PageNumber - 1) * request.PageSize;
-
-    List<Library> libraries = await _libraryRepository
-        .GetAllLibraries()
-        .Skip(skip)
-        .Take(request.PageSize)
-        .ToListAsync();
-
-        return libraries;
-    }
+    public async Task<List<Library>> Handle(GetAllLibrariesQuery request, CancellationToken cancellationToken) => await _libraryRepository.GetAllLibraries(request.PageSize, request.PageNumber);
 
 }

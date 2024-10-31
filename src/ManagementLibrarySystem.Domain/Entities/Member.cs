@@ -10,6 +10,7 @@ public class Member : Entity
     public required string Name { get; set; }
     public required string Email { get; set; }
     public List<Book> Books { get; private set; } = [];
+    [JsonIgnore]
     public List<Library> Libraries { get; private set; } = [];
 
     public Member(Guid id) : base(id) { }

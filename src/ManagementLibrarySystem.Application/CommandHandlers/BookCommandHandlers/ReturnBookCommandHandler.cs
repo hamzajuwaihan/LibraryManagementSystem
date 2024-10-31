@@ -20,13 +20,13 @@ public class ReturnBookCommandHandler(IBookRepository bookRepository) : IRequest
     /// <returns></returns>
     public async Task<string> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
     {
-        Book? book = await _bookRepository.GetBookById(request.Id) ?? throw new BookNotFoundException();
+        Book book = await _bookRepository.GetBookById(request.Id);
 
         if (!book.IsBorrowed) throw new BookIsNotCurrentlyBorrowedException();
 
-        book.Update(book.Title, book.Author, false, null, null);
+        book.Return();
 
-        await _bookRepository.UpdateBookById(request.Id, book);
+        await _bookRepository.UpdateBook(request.Id, book);
 
         return "Book returned successfully.";
     }
