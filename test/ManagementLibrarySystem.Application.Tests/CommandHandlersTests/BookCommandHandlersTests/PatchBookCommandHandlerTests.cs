@@ -1,7 +1,6 @@
 using ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandlers;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
-using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -11,14 +10,14 @@ namespace ManagementLibrarySystem.Application.Test.CommandHandlersTests.BookComm
 public class PatchBookCommandHandlerTests
 {
     private readonly Mock<IBookRepository> _mockBookRepository;
-    private readonly PatchBookByIdCommandHandler _handler;
+    private readonly PatchBookCommandHandler _handler;
     private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
 
     public PatchBookCommandHandlerTests()
     {
         _mockBookRepository = new Mock<IBookRepository>();
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-        _handler = new PatchBookByIdCommandHandler(_mockBookRepository.Object, _mockHttpContextAccessor.Object);
+        _handler = new PatchBookCommandHandler(_mockBookRepository.Object, _mockHttpContextAccessor.Object);
     }
 
     [Fact]
@@ -29,7 +28,7 @@ public class PatchBookCommandHandlerTests
 
         _mockBookRepository.Setup(repo => repo.GetBookById(id)).ReturnsAsync(initialBookState);
 
-        PatchBookByIdCommand command = new("New Title", null, null, null, null);
+        PatchBookCommand command = new("New Title", null, null, null, null);
 
         DefaultHttpContext mockHttpContext = new DefaultHttpContext();
         mockHttpContext.Request.RouteValues = new RouteValueDictionary
@@ -45,7 +44,7 @@ public class PatchBookCommandHandlerTests
         Assert.Equal("New Title", result.Title);
         Assert.Equal("Old Author", result.Author);
         Assert.False(result.IsBorrowed);
-        _mockBookRepository.Verify(repo => repo.PatchBookById(id, It.IsAny<Book>()), Times.Once);
+        _mockBookRepository.Verify(repo => repo.PatchBook(id, It.IsAny<Book>()), Times.Once);
     }
 
 
@@ -55,7 +54,7 @@ public class PatchBookCommandHandlerTests
         Guid id = Guid.NewGuid();
         Book initialBookState = new(id) { Title = "Old Title", Author = "Old Author", IsBorrowed = false };
         _mockBookRepository.Setup(repo => repo.GetBookById(id)).ReturnsAsync(initialBookState);
-        PatchBookByIdCommand command = new(null, "New Author", null, null, null);
+        PatchBookCommand command = new(null, "New Author", null, null, null);
         DefaultHttpContext mockHttpContext = new DefaultHttpContext();
         mockHttpContext.Request.RouteValues = new RouteValueDictionary
         {
@@ -69,6 +68,6 @@ public class PatchBookCommandHandlerTests
         Assert.Equal("Old Title", result.Title);
         Assert.Equal("New Author", result.Author);
         Assert.False(result.IsBorrowed);
-        _mockBookRepository.Verify(repo => repo.PatchBookById(id, It.IsAny<Book>()), Times.Once);
+        _mockBookRepository.Verify(repo => repo.PatchBook(id, It.IsAny<Book>()), Times.Once);
     }
 }

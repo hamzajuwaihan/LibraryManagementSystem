@@ -1,7 +1,6 @@
 
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
-using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -9,29 +8,26 @@ using Microsoft.AspNetCore.Routing;
 
 namespace ManagementLibrarySystem.Application.CommandHandlers.BookCommandHandlers;
 /// <summary>
-/// Implementation for PatchBookByIdCommand Handler function for MediatR
+/// Implementation for PatchBookCommand Handler function for MediatR
 /// </summary>
 /// <param name="bookRepository"></param>
-public class PatchBookByIdCommandHandler(IBookRepository bookRepository, IHttpContextAccessor httpContextAccessor) : IRequestHandler<PatchBookByIdCommand, Book>
+public class PatchBookCommandHandler(IBookRepository bookRepository, IHttpContextAccessor httpContextAccessor) : IRequestHandler<PatchBookCommand, Book>
 {
     private readonly IBookRepository _bookRepository = bookRepository;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     /// <summary>
-    /// Handle function to receive PatchBookById
+    /// Handle function to receive PatchBook
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="KeyNotFoundException"></exception>
-    public async Task<Book> Handle(PatchBookByIdCommand request, CancellationToken cancellationToken)
+    public async Task<Book> Handle(PatchBookCommand request, CancellationToken cancellationToken)
     {
-        string id = _httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString()!;
+        Guid id = Guid.Parse(_httpContextAccessor.HttpContext?.GetRouteValue("id")?.ToString()!);
 
-        Guid bookId = Guid.Parse(id);
-
-
-        Book book = await _bookRepository.GetBookById(bookId);
+        Book book = await _bookRepository.GetBookById(id);
 
         book.Update(
             title: request.Title ?? book.Title,
@@ -41,7 +37,7 @@ public class PatchBookByIdCommandHandler(IBookRepository bookRepository, IHttpCo
             borrowedBy: request.BorrowedBy ?? book.BorrowedBy
         );
 
-        await _bookRepository.PatchBookById(bookId, book);
+        await _bookRepository.PatchBook(id, book);
 
         return book;
     }

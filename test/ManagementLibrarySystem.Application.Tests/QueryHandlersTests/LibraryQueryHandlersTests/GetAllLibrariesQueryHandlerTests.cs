@@ -50,7 +50,7 @@ public class GetAllLibrariesQueryHandlerTests
         List<Library> result = await _handler.Handle(query, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Empty(result); 
+        Assert.Empty(result);
     }
 
 

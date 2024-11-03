@@ -34,7 +34,7 @@ public class MemberRepository(DbAppContext context) : IMemberRepository
     {
         int skip = (pageNumber - 1) * pageSize;
 
-        return await _context.Members
+        return await _context.Members.Include(member => member.Books)
             .OrderBy(m => m.Name)
             .Skip(skip)
             .Take(pageSize)
@@ -49,11 +49,22 @@ public class MemberRepository(DbAppContext context) : IMemberRepository
 
     public async Task<Member> GetMemberById(Guid id) => await _context.Members.FirstOrDefaultAsync(member => member.Id == id) ?? throw new MemberNotFoundException();
 
-    public async Task<Member?> UpdateMemberById(Member member)
+    public async Task<Member> UpdateMember(Guid memberId, string? newName, string? newEmail)
     {
-        Member? existingMember = await _context.Members.FindAsync(member.Id) ?? throw new MemberNotFoundException();
 
-        existingMember.Update(member.Name, member.Email);
+        Member existingMember = await _context.Members.FindAsync(memberId) ?? throw new MemberNotFoundException();
+
+        if (!string.IsNullOrEmpty(newEmail))
+        {
+            bool emailInUse = await _context.Members.AnyAsync(m => m.Email.Equals(newEmail, StringComparison.CurrentCultureIgnoreCase) && m.Id != memberId);
+
+            if (emailInUse) throw new DuplicateEmailException();
+
+            existingMember.Email = newEmail;
+        }
+
+        if (!string.IsNullOrEmpty(newName)) existingMember.Name = newName;
+
 
         await _context.SaveChangesAsync();
 

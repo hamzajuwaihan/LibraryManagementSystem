@@ -1,10 +1,9 @@
-
 using ManagementLibrarySystem.Domain.Entities;
 using MediatR;
 
 namespace ManagementLibrarySystem.Application.Commands.BookCommands;
 
-public class PatchBookByIdCommand(string? title, string? author, bool? isBorrowed, DateTime? borrowedDate, Guid? borrowedBy) : IRequest<Book>
+public class PatchBookCommand(string? title, string? author, bool? isBorrowed, DateTime? borrowedDate, Guid? borrowedBy) : IRequest<Book>
 {
     public string? Title { get; } = title;
     public string? Author { get; } = author;

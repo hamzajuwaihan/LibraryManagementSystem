@@ -16,6 +16,6 @@ public class DeleteBookCommandHandler(IBookRepository bookRepository) : IRequest
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<bool> Handle(DeleteBookCommand request, CancellationToken cancellationToken) => await _bookRepository.DeleteBookById(request.Id);
+    public async Task<bool> Handle(DeleteBookCommand request, CancellationToken cancellationToken) => await _bookRepository.DeleteBook(request.Id);
 
 }

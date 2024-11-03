@@ -1,4 +1,5 @@
 using ManagementLibrarySystem.Application.Commands.LibraryCommands;
+using ManagementLibrarySystem.Application.Commands.LibraryMemberCommands;
 using ManagementLibrarySystem.Application.Queries.LibraryQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using MediatR;
@@ -51,21 +52,51 @@ public static class LibraryEndPoint
             return Results.Ok(book);
         })
         .WithTags("Library")
-        .Produces<Book>(StatusCodes.Status200OK)
+        .Produces<Library>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("", async(IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>
+        group.MapGet("", async (IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>
         {
             GetAllLibrariesQuery query = new() { PageNumber = pageNumber, PageSize = pageSize };
-            
+
             List<Library> libraries = await _mediator.Send(query);
 
             return Results.Ok(libraries);
         })
         .WithTags("Library")
-        .Produces<List<Book>>(StatusCodes.Status200OK);
+        .Produces<List<Library>>(StatusCodes.Status200OK);
 
 
+        group.MapPost("{libraryId:guid}/add-library-member/{memberId:guid}", async (Guid libraryId, Guid memberId, IMediator _mediator) =>
+        {
 
+            bool result = await _mediator.Send(new AddLibraryMemberCommand(libraryId, memberId));
+
+            if (!result) return Results.BadRequest("Failed to add member to the library. Either the library or member does not exist, or the member is already added.");
+
+            return Results.Created($"/api/member/add-library-member", new
+            {
+                message = "Member added to library successfully."
+            });
+        })
+        .WithTags("Library")
+        .Produces(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest);
+
+        group.MapPost("{libraryId:guid}/remove-library-member/{memberId:guid}", async (Guid libraryId, Guid memberId, IMediator _mediator) =>
+        {
+
+            bool result = await _mediator.Send(new RemoveLibraryMemberCommand(libraryId, memberId));
+
+            if (!result) return Results.BadRequest("Failed to remove member from the library. Either the library or member does not exist, or the member is not in the library.");
+
+            return Results.Ok(new
+            {
+                message = "Member removed from library successfully."
+            });
+        })
+        .WithTags("Library")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest);
     }
 }

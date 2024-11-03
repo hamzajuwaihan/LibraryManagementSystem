@@ -2,7 +2,6 @@ using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace ManagementLibrarySystem.Application.QueryHandlers.BookQueryHandlers;
 /// <summary>

@@ -12,7 +12,7 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 
     public async Task<Library> CreateLibrary(Library library)
     {
-        bool nameExists = await _context.Libraries.AnyAsync(l => l.Name == library.Name);
+        bool nameExists = await _context.Libraries.AnyAsync(l => l.Name.Equals(library.Name, StringComparison.CurrentCultureIgnoreCase));
 
         if (nameExists) throw new DuplicateLibraryNameException();
 
@@ -39,6 +39,8 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
         int skip = (pageNumber - 1) * pageSize;
 
         return await _context.Libraries
+            .Include(library => library.Books)
+            .Include(library => library.Members)
             .OrderBy(l => l.Name)
             .Skip(skip)
             .Take(pageSize)
@@ -48,7 +50,7 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
     public async Task<List<Library>> GetAllLibraries() => await _context.Libraries.ToListAsync();
 
 
-    public async Task<Library> GetLibraryById(Guid id) => await _context.Libraries.Include(library => library.Books).FirstOrDefaultAsync(library => library.Id == id) ?? throw new LibraryNotFoundException();
+    public async Task<Library> GetLibraryById(Guid id) => await _context.Libraries.Include(library => library.Books).Include(library => library.Members).FirstOrDefaultAsync(library => library.Id == id) ?? throw new LibraryNotFoundException();
 
 
     public async Task<Library?> UpdateLibrary(Library library)
@@ -70,9 +72,26 @@ public class LibraryRepository(DbAppContext context) : ILibraryRepository
 
         Member? member = await _context.Members.FindAsync(memberId) ?? throw new MemberNotFoundException();
 
-        if (library.Members.Any(m => m.Id == memberId)) throw new LibraryAlreadyHasThisMember();
+        if (library.Members.Any(m => m.Id == memberId)) throw new LibraryAlreadyHasThisMemberException();
 
         library.Members.Add(member);
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> RemoveMemberFromLibrary(Guid libraryId, Guid memberId)
+    {
+        Library? library = await _context.Libraries
+        .Include(l => l.Members)
+        .FirstOrDefaultAsync(l => l.Id == libraryId) ?? throw new LibraryNotFoundException();
+
+        Member? member = await _context.Members.FindAsync(memberId) ?? throw new MemberNotFoundException();
+
+        if (!library.Members.Any(m => m.Id == memberId)) throw new LibraryDoesNotHaveThisMemberException();
+
+        library.Members.Remove(member);
 
         await _context.SaveChangesAsync();
 

@@ -1,4 +1,3 @@
-using ManagementLibrarySystem.Application.Commands.LibraryMemberCommands;
 using ManagementLibrarySystem.Application.Commands.MemberCommands;
 using ManagementLibrarySystem.Application.Queries.MemberQueries;
 using ManagementLibrarySystem.Domain.Entities;
@@ -66,23 +65,15 @@ public static class MemberEndpoint
         .WithTags("Member")
         .Produces<List<Member>>(StatusCodes.Status200OK);
 
-        group.MapPost("add-library-member", async (AddLibraryMemberCommand command, IMediator _mediator) =>
+        group.MapPatch("{id:guid}", async (Guid id, PatchMemberCommand command, IMediator _mediator) =>
         {
-            if (command == null) return Results.BadRequest("Library and Member data are required.");
+            Member result = await _mediator.Send(command);
 
-            bool result = await _mediator.Send(command);
-
-            if (!result) return Results.BadRequest("Failed to add member to the library. Either the library or member does not exist, or the member is already added.");
-
-            return Results.Created($"/api/member/add-library-member", new {
-                message =  "Member added to library successfully."
-            });
+            return Results.Ok(result);
         })
-        .WithTags("LibraryMember")
-        .Produces(StatusCodes.Status201Created)
-        .Produces(StatusCodes.Status400BadRequest)
-        .Accepts<AddLibraryMemberCommand>("application/json");
-
-
+        .WithTags("Member")
+        .Accepts<PatchMemberCommand>("application/json")
+        .Produces<Member>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest);
     }
 }

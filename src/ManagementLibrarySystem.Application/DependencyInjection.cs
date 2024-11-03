@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using MediatR;
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 
 namespace ManagementLibrarySystem.Application;

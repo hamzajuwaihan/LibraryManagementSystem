@@ -2,7 +2,6 @@
 using ManagementLibrarySystem.Application.Queries.BookQueries;
 using ManagementLibrarySystem.Application.QueryHandlers.BookQueryHandlers;
 using ManagementLibrarySystem.Domain.Entities;
-using ManagementLibrarySystem.Domain.Exceptions.Book;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 
 namespace ManagementLibrarySystem.Application.Test.QueryHandlersTests.BookQueryHandlersTests;
@@ -32,7 +31,7 @@ public class GetBookByIdQueryHandlerTests
 
         Book? result = await _handler.Handle(query, CancellationToken.None);
 
- 
+
         Assert.NotNull(result);
         Assert.Equal(expectedBook.Title, result.Title);
         Assert.Equal(expectedBook.Author, result.Author);
@@ -49,7 +48,7 @@ public class GetBookByIdQueryHandlerTests
         _mockBookRepository.Setup(repo => repo.GetBookById(bookId)).ThrowsAsync(new Exception("Database error"));
 
         GetBookByIdQuery query = new GetBookByIdQuery(bookId);
-        
+
         await Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
     }
 }

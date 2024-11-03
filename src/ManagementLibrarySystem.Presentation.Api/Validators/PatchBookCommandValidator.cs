@@ -4,7 +4,7 @@ using ManagementLibrarySystem.Application.Commands.BookCommands;
 namespace ManagementLibrarySystem.Presentation.Api.Validators;
 
 
-public class PatchBookByIdCommandValidator : AbstractValidator<PatchBookByIdCommand>
+public class PatchBookByIdCommandValidator : AbstractValidator<PatchBookCommand>
 {
     public PatchBookByIdCommandValidator()
     {

@@ -1,5 +1,3 @@
-using System;
-
 namespace ManagementLibrarySystem.Domain.Exceptions.Member;
 
 public class DuplicateEmailException : Exception

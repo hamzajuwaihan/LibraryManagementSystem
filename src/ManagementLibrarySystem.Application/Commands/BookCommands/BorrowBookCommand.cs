@@ -1,10 +1,6 @@
+using ManagementLibrarySystem.Domain.Entities;
 using MediatR;
 
 namespace ManagementLibrarySystem.Application.Commands.BookCommands;
 
-public class BorrowBookCommand( Guid memberId) : IRequest<string>
-{
-
-    public Guid MemberId { get; } = memberId;
-
-}
+public class BorrowBookCommand() : IRequest<Book> { }

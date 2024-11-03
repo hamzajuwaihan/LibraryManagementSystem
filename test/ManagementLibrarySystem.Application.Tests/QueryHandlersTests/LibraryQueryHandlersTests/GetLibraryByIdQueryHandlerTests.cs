@@ -43,7 +43,7 @@ public class GetLibraryByIdQueryHandlerTests
 
         GetLibraryByIdQuery query = new GetLibraryByIdQuery(libraryId);
 
-        await Assert.ThrowsAsync<LibraryNotFoundException>(()=> _handler.Handle(query, CancellationToken.None));
+        await Assert.ThrowsAsync<LibraryNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
     }
 
 

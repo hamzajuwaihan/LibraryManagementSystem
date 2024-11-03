@@ -1,13 +1,17 @@
 using ManagementLibrarySystem.Domain.Entities;
 using ManagementLibrarySystem.Domain.Exceptions.Book;
+using ManagementLibrarySystem.Domain.Exceptions.Library;
+using ManagementLibrarySystem.Domain.Exceptions.Member;
 using ManagementLibrarySystem.Infrastructure.DB;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using Microsoft.EntityFrameworkCore;
 namespace ManagementLibrarySystem.Infrastructure.Repositories;
 
-public class BookRepository(DbAppContext context) : IBookRepository
+public class BookRepository(DbAppContext context, IMemberRepository memberRepository) : IBookRepository
 {
     private readonly DbAppContext _context = context;
+    private readonly IMemberRepository _memberRepository = memberRepository;
+
     public async Task<Book> CreateBook(Book book)
     {
 
@@ -16,7 +20,7 @@ public class BookRepository(DbAppContext context) : IBookRepository
         return book;
     }
 
-    public async Task<bool> DeleteBookById(Guid id)
+    public async Task<bool> DeleteBook(Guid id)
     {
 
         Book? book = await GetBookById(id) ?? throw new BookNotFoundException();
@@ -56,9 +60,9 @@ public class BookRepository(DbAppContext context) : IBookRepository
 
     public async Task<Book> GetBookById(Guid id) => await _context.Books.FirstOrDefaultAsync(book => book.Id == id) ?? throw new BookNotFoundException();
 
-    public async Task<Book?> PatchBookById(Guid id, Book book)
+    public async Task<Book> PatchBook(Guid id, Book book)
     {
-        Book? existingBook = await GetBookById(id) ?? throw new BookNotFoundException();
+        Book existingBook = await GetBookById(id) ?? throw new BookNotFoundException();
 
         existingBook.Update(
             title: !string.IsNullOrEmpty(book.Title) ? book.Title : existingBook.Title,
@@ -70,6 +74,45 @@ public class BookRepository(DbAppContext context) : IBookRepository
 
         await _context.SaveChangesAsync();
         return existingBook;
+    }
+
+    public async Task<Book> BorrowBook(Guid bookId, Guid memberId)
+    {
+
+        Book book = await GetBookById(bookId) ?? throw new BookNotFoundException();
+
+        Member member = await _memberRepository.GetMemberById(memberId) ?? throw new MemberNotFoundException();
+
+
+        if (book.IsBorrowed) throw new BookAlreadyBorrowedException();
+
+        Library library = await _context.Libraries
+                                .Include(l => l.Members)
+                                .FirstOrDefaultAsync(l => l.Id == book.LibraryId)
+                                ?? throw new LibraryNotFoundException();
+
+        if (!library.Members.Any(m => m.Id == member.Id)) throw new LibraryDoesNotHaveThisMemberException();
+        
+        book.IsBorrowed = true;
+        book.BorrowedBy = member.Id;
+        book.BorrowedDate = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return book;
+    }
+    public async Task<Book> ReturnBook(Guid id)
+    {
+        Book book = await GetBookById(id);
+
+        if (!book.IsBorrowed) throw new BookIsNotCurrentlyBorrowedException();
+
+        book.BorrowedDate = null;
+        book.BorrowedBy = null;
+        book.IsBorrowed = false;
+
+        await _context.SaveChangesAsync();
+        return book;
     }
 
     public async Task<Book?> UpdateBook(Guid id, Book book)

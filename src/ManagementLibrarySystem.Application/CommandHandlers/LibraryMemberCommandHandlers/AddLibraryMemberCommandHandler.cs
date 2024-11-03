@@ -16,7 +16,7 @@ public class AddLibraryMemberCommandHandler(ILibraryRepository libraryRepository
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<bool> Handle(AddLibraryMemberCommand request, CancellationToken cancellationToken) =>  await _libraryRepository.AddMemberToLibrary(request.LibraryId, request.MemberId);
+    public async Task<bool> Handle(AddLibraryMemberCommand request, CancellationToken cancellationToken) => await _libraryRepository.AddMemberToLibrary(request.LibraryId, request.MemberId);
 
-    
+
 }

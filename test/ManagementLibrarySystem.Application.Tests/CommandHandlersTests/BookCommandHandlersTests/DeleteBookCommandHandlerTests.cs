@@ -19,27 +19,27 @@ public class DeleteBookCommandHandlerTests
     public async Task Handle_BookExists_DeletesBookSuccessfully()
     {
         Guid bookId = Guid.NewGuid();
-        _mockBookRepository.Setup(repo => repo.DeleteBookById(bookId)).ReturnsAsync(true);
+        _mockBookRepository.Setup(repo => repo.DeleteBook(bookId)).ReturnsAsync(true);
 
         DeleteBookCommand command = new(bookId);
 
         bool result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.True(result);
-        _mockBookRepository.Verify(repo => repo.DeleteBookById(bookId), Times.Once);
+        _mockBookRepository.Verify(repo => repo.DeleteBook(bookId), Times.Once);
     }
 
     [Fact]
     public async Task Handle_BookDoesNotExist_ReturnsFalse()
     {
         Guid bookId = Guid.NewGuid();
-        _mockBookRepository.Setup(repo => repo.DeleteBookById(bookId)).ReturnsAsync(false);
+        _mockBookRepository.Setup(repo => repo.DeleteBook(bookId)).ReturnsAsync(false);
 
         DeleteBookCommand command = new(bookId);
 
         bool result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.False(result);
-        _mockBookRepository.Verify(repo => repo.DeleteBookById(bookId), Times.Once);
+        _mockBookRepository.Verify(repo => repo.DeleteBook(bookId), Times.Once);
     }
 }

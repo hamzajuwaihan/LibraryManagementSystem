@@ -265,10 +265,10 @@ public class BookEndpointTests
             Author = "Original Author"
         };
 
-        _mediatorMock.Setup(m => m.Send(It.IsAny<PatchBookByIdCommand>(), It.IsAny<CancellationToken>()))
+        _mediatorMock.Setup(m => m.Send(It.IsAny<PatchBookCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(updatedBook);
 
-        PatchBookByIdCommand patchCommand = new PatchBookByIdCommand("Updated Title", "Original Author", null, null, null);
+        PatchBookCommand patchCommand = new PatchBookCommand("Updated Title", "Original Author", null, null, null);
 
         HttpResponseMessage response = await _client.PatchAsJsonAsync($"/book/{targetId}", patchCommand);
 

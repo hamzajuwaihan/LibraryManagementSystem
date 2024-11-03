@@ -14,7 +14,7 @@ public class Book : Entity
     public DateTime? BorrowedDate { get; set; }
     public Guid? BorrowedBy { get; set; }
     public Guid LibraryId { get; set; }
-    
+
     [JsonIgnore]
     public Library LibraryAssociated { get; set; } = null!;
 

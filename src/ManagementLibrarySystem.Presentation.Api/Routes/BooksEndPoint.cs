@@ -48,7 +48,7 @@ public static class BooksEndPoint
             DeleteBookCommand command = new DeleteBookCommand(id);
 
             ValidationResult validationResult = await validator.ValidateAsync(command);
-            
+
             if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);
 
 
@@ -71,15 +71,11 @@ public static class BooksEndPoint
         .WithTags("Book")
         .Produces<List<Book>>(StatusCodes.Status200OK);
 
-        group.MapPost("/{id:guid}/borrow", async (Guid id, BorrowBookCommand request, IValidator<BorrowBookCommand> validator, IMediator mediator) =>
+        group.MapPost("/{id:guid}/borrow/{memberId:guid}", async (Guid id, Guid memberId, IMediator mediator) =>
         {
-            ValidationResult validationResult = await validator.ValidateAsync(request);
+            Book result = await mediator.Send(new BorrowBookCommand());
 
-            if (!validationResult.IsValid) return Results.BadRequest(new { message = "Validation failed", errors = validationResult.Errors });
-
-            string result = await mediator.Send(request);
-
-            return Results.Ok(new { message = result });
+            return Results.Ok(result);
         })
         .WithTags("Book");
 
@@ -102,7 +98,7 @@ public static class BooksEndPoint
         .WithTags("Book");
 
 
-        group.MapPatch("/{id}", async (Guid id, PatchBookByIdCommand command, IValidator<PatchBookByIdCommand> validator, IMediator mediator) =>
+        group.MapPatch("/{id}", async (Guid id, PatchBookCommand command, IValidator<PatchBookCommand> validator, IMediator mediator) =>
         {
             ValidationResult validationResult = await validator.ValidateAsync(command);
             if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);

@@ -1,6 +1,4 @@
-using ManagementLibrarySystem.Infrastructure.DB;
-
-namespace ManagementLibrarySystem.Infastructure.Test;
+namespace ManagementLibrarySystem.Infrastructure.Test;
 
 public class LibraryRepositoryTests
 {

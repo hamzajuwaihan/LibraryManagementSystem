@@ -11,4 +11,5 @@ public interface ILibraryRepository
     Task<List<Library>> GetAllLibraries();
     Task<Library> CreateLibrary(Library library);
     Task<bool> AddMemberToLibrary(Guid library, Guid member);
+    Task<bool> RemoveMemberFromLibrary(Guid libraryId, Guid memberId);
 }

@@ -1,6 +1,5 @@
 using ManagementLibrarySystem.Application.Commands.BookCommands;
 using ManagementLibrarySystem.Domain.Entities;
-using ManagementLibrarySystem.Domain.Exceptions.Library;
 using ManagementLibrarySystem.Infrastructure.RepositoriesContracts;
 using MediatR;
 

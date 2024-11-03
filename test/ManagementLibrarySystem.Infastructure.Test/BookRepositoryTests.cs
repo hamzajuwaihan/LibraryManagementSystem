@@ -1,7 +1,6 @@
 using ManagementLibrarySystem.Domain.Exceptions.Book;
-using ManagementLibrarySystem.Infrastructure.DB;
 
-namespace ManagementLibrarySystem.Infastructure.Test;
+namespace ManagementLibrarySystem.Infrastructure.Test;
 
 public class BookRepositoryTests
 {
@@ -18,7 +17,8 @@ public class BookRepositoryTests
     public async Task CreateBook_ShouldAddBookToDatabase()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
         Book book = new(Guid.NewGuid())
         {
@@ -38,7 +38,8 @@ public class BookRepositoryTests
     public async Task CreateBook_ShouldReturnExceptionWhenBookIsNull()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
         Book book = null!;
 
@@ -49,10 +50,11 @@ public class BookRepositoryTests
 
     #region  GetBookTests
     [Fact]
-    public async Task GetBookById_ShouldReturnBookSuccessfuly()
+    public async Task GetBookById_ShouldReturnBookSuccessfully()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
 
         Guid bookId = Guid.NewGuid();
@@ -77,8 +79,8 @@ public class BookRepositoryTests
     public async Task GetAllBooks_ShouldReturnAllBooks()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
-
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
         Book book1 = new Book(Guid.NewGuid())
         {
             Title = "Book One",
@@ -106,7 +108,8 @@ public class BookRepositoryTests
     public async Task GetBookById_ShouldReturnNullWhenBookNotFound()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
         Guid randomGuid = Guid.NewGuid();
 
@@ -124,7 +127,8 @@ public class BookRepositoryTests
     {
 
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
         Book book = new(Guid.NewGuid())
         {
@@ -133,7 +137,7 @@ public class BookRepositoryTests
         };
         Book addedBook = await repository.CreateBook(book);
 
-        Assert.True(await repository.DeleteBookById(addedBook.Id));
+        Assert.True(await repository.DeleteBook(addedBook.Id));
         Assert.Empty(await repository.GetAllBooks());
     }
 
@@ -144,7 +148,8 @@ public class BookRepositoryTests
     public async Task UpdateBookById_ShouldUpdateBookDetailsSuccessfully()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
         Book book = new(Guid.NewGuid())
         {
@@ -168,7 +173,8 @@ public class BookRepositoryTests
     public async Task PatchBookById_ShouldUpdateOnlyProvidedFields()
     {
         using DbAppContext context = CreateDbContext();
-        BookRepository repository = new(context);
+        MemberRepository memberRepository = new(context);
+        BookRepository repository = new(context, memberRepository);
 
 
         Book book = new(Guid.NewGuid())
@@ -187,7 +193,7 @@ public class BookRepositoryTests
             Title = "Patched Title",
             Author = book.Author
         };
-        Book? patchedBook = await repository.PatchBookById(book.Id, patchBook);
+        Book? patchedBook = await repository.PatchBook(book.Id, patchBook);
 
 
         Assert.NotNull(patchedBook);
