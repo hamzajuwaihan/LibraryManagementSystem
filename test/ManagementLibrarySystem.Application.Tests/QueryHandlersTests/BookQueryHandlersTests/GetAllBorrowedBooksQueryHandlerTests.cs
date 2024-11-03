@@ -26,11 +26,9 @@ public class GetAllBorrowedBooksQueryHandlerTests
             new Book(Guid.NewGuid()) { Title = "Borrowed Book 1", Author = "Author 1" },
             new Book(Guid.NewGuid()) { Title = "Borrowed Book 2", Author = "Author 2" }
         };
-
-        _mockBookRepository.Setup(repo => repo.GetAllBorrowedBooks()).ReturnsAsync(borrowedBooks.ToList());
-
         GetAllBorrowedBooksQuery query = new GetAllBorrowedBooksQuery();
 
+        _mockBookRepository.Setup(repo => repo.GetAllBorrowedBooks(query.PageSize,query.PageNumber)).ReturnsAsync(borrowedBooks);
 
         List<Book> result = await _handler.Handle(query, CancellationToken.None);
 

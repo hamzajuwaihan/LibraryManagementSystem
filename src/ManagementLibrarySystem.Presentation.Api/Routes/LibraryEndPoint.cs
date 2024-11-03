@@ -17,8 +17,7 @@ public static class LibraryEndPoint
 
         group.MapPost("", async (AddLibraryCommand command, IMediator _mediator) =>
         {
-
-            if (command == null) return Results.BadRequest("Library data is required");
+            if (string.IsNullOrEmpty(command.Name)) return Results.BadRequest("Library name is required");
 
             Library result = await _mediator.Send(command);
 
@@ -31,12 +30,9 @@ public static class LibraryEndPoint
 
         group.MapDelete("{id:guid}", async (Guid id, IMediator _mediator) =>
         {
-            DeleteLibraryCommand command = new(id);
-
-            bool result = await _mediator.Send(command);
+            await _mediator.Send(new DeleteLibraryCommand(id));
 
             return Results.NoContent();
-
         })
         .WithTags("Library")
         .Produces(StatusCodes.Status204NoContent)
@@ -44,10 +40,7 @@ public static class LibraryEndPoint
 
         group.MapGet("{id:Guid}", async (Guid id, IMediator _mediator) =>
         {
-
-            GetLibraryByIdQuery query = new(id);
-
-            Library book = await _mediator.Send(query);
+            Library book = await _mediator.Send(new GetLibraryByIdQuery(id));
 
             return Results.Ok(book);
         })
@@ -57,9 +50,10 @@ public static class LibraryEndPoint
 
         group.MapGet("", async (IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>
         {
-            GetAllLibrariesQuery query = new() { PageNumber = pageNumber, PageSize = pageSize };
-
-            List<Library> libraries = await _mediator.Send(query);
+            List<Library> libraries = await _mediator.Send(new GetAllLibrariesQuery(){
+                PageNumber = pageNumber, 
+                PageSize = pageSize 
+            });
 
             return Results.Ok(libraries);
         })
@@ -69,10 +63,7 @@ public static class LibraryEndPoint
 
         group.MapPost("{libraryId:guid}/add-library-member/{memberId:guid}", async (Guid libraryId, Guid memberId, IMediator _mediator) =>
         {
-
             bool result = await _mediator.Send(new AddLibraryMemberCommand(libraryId, memberId));
-
-            if (!result) return Results.BadRequest("Failed to add member to the library. Either the library or member does not exist, or the member is already added.");
 
             return Results.Created($"/api/member/add-library-member", new
             {
@@ -85,10 +76,7 @@ public static class LibraryEndPoint
 
         group.MapPost("{libraryId:guid}/remove-library-member/{memberId:guid}", async (Guid libraryId, Guid memberId, IMediator _mediator) =>
         {
-
             bool result = await _mediator.Send(new RemoveLibraryMemberCommand(libraryId, memberId));
-
-            if (!result) return Results.BadRequest("Failed to remove member from the library. Either the library or member does not exist, or the member is not in the library.");
 
             return Results.Ok(new
             {

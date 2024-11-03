@@ -18,7 +18,7 @@ public class BorrowBookCommandHandler(IBookRepository bookRepository, IHttpConte
 
 
     /// <summary>
-    /// Hander function to handler BorrowBookCommand
+    /// Handler function to handler BorrowBookCommand
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>

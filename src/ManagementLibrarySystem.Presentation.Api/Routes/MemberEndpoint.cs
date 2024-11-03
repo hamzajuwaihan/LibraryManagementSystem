@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.Results;
 using ManagementLibrarySystem.Application.Commands.MemberCommands;
 using ManagementLibrarySystem.Application.Queries.MemberQueries;
 using ManagementLibrarySystem.Domain.Entities;
@@ -14,25 +16,24 @@ public static class MemberEndpoint
     {
         RouteGroupBuilder group = app.MapGroup("member");
 
-        group.MapPost("", async (AddMemberCommand command, IMediator _mediator) =>
+        group.MapPost("", async (AddMemberCommand command, IValidator<AddMemberCommand> validator, IMediator _mediator) =>
         {
+            ValidationResult validationResult = await validator.ValidateAsync(command);
 
-            if (command == null) return Results.BadRequest("Library data is required");
+            if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);
 
             Member result = await _mediator.Send(command);
 
             return Results.Created($"member/{result.Id}", result);
         })
         .WithTags("Member")
-        .Produces<Library>(StatusCodes.Status201Created)
+        .Produces<Member>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
         .Accepts<AddMemberCommand>("application/json");
 
         group.MapDelete("{id:guid}", async (Guid id, IMediator _mediator) =>
         {
-            DeleteMemberCommand command = new(id);
-
-            bool result = await _mediator.Send(command);
+            await _mediator.Send(new DeleteMemberCommand(id));
 
             return Results.NoContent();
 
@@ -51,7 +52,7 @@ public static class MemberEndpoint
             return Results.Ok(member);
         })
         .WithTags("Member")
-        .Produces<Book>(StatusCodes.Status200OK)
+        .Produces<Member>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("", async (IMediator _mediator, int pageNumber = 1, int pageSize = 10) =>

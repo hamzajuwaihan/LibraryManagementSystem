@@ -38,12 +38,16 @@ public class PatchBookCommandHandlerTests
 
         _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
 
+        Book updatedBookState = new(id) { Title = "New Title", Author = "Old Author", IsBorrowed = false };
+        _mockBookRepository.Setup(repo => repo.PatchBook(id, It.IsAny<Book>())).ReturnsAsync(updatedBookState);
+
 
         Book result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal("New Title", result.Title);
         Assert.Equal("Old Author", result.Author);
         Assert.False(result.IsBorrowed);
+
         _mockBookRepository.Verify(repo => repo.PatchBook(id, It.IsAny<Book>()), Times.Once);
     }
 
@@ -53,21 +57,25 @@ public class PatchBookCommandHandlerTests
     {
         Guid id = Guid.NewGuid();
         Book initialBookState = new(id) { Title = "Old Title", Author = "Old Author", IsBorrowed = false };
-        _mockBookRepository.Setup(repo => repo.GetBookById(id)).ReturnsAsync(initialBookState);
-        PatchBookCommand command = new(null, "New Author", null, null, null);
-        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
-        mockHttpContext.Request.RouteValues = new RouteValueDictionary
-        {
-            { "id", id.ToString() }
-        };
 
+        _mockBookRepository.Setup(repo => repo.GetBookById(id)).ReturnsAsync(initialBookState);
+
+        PatchBookCommand command = new(null, "New Author", null, null, null);
+
+        DefaultHttpContext mockHttpContext = new DefaultHttpContext();
+        mockHttpContext.Request.RouteValues = new RouteValueDictionary { { "id", id.ToString() } };
         _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext);
+
+        Book updatedBookState = new(id) { Title = "Old Title", Author = "New Author", IsBorrowed = false };
+        _mockBookRepository.Setup(repo => repo.PatchBook(id, It.IsAny<Book>())).ReturnsAsync(updatedBookState);
 
         Book result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal("Old Title", result.Title);
         Assert.Equal("New Author", result.Author);
         Assert.False(result.IsBorrowed);
+
         _mockBookRepository.Verify(repo => repo.PatchBook(id, It.IsAny<Book>()), Times.Once);
+
     }
 }

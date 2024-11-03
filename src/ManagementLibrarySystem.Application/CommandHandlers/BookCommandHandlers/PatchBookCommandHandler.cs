@@ -37,8 +37,6 @@ public class PatchBookCommandHandler(IBookRepository bookRepository, IHttpContex
             borrowedBy: request.BorrowedBy ?? book.BorrowedBy
         );
 
-        await _bookRepository.PatchBook(id, book);
-
-        return book;
+        return await _bookRepository.PatchBook(id, book);
     }
 }

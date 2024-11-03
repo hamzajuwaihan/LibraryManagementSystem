@@ -51,7 +51,7 @@ public class BookEndpointTests
         Guid memberId = Guid.NewGuid();
 
 
-        BorrowBookCommand command = new(memberId);
+        BorrowBookCommand command = new();
 
 
         _borrowValidatorMock
@@ -60,32 +60,11 @@ public class BookEndpointTests
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<BorrowBookCommand>(), default))
-            .ReturnsAsync("Book borrowed successfully.");
+            .ReturnsAsync(It.IsAny<Book>());
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{bookId}/borrow", command);
+        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{bookId}/borrow/{memberId}", command);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task BorrowBook_ReturnsBadRequest_WhenValidationFails()
-    {
-        Guid bookId = Guid.NewGuid();
-        BorrowBookCommand command = new(Guid.NewGuid());
-
-        _borrowValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<BorrowBookCommand>(), default))
-            .ReturnsAsync(new ValidationResult(new List<ValidationFailure>
-            {
-                new ValidationFailure("BookId", "Invalid book ID.")
-            }));
-
-        HttpResponseMessage response = await _client.PostAsJsonAsync($"/book/{bookId}/borrow", command);
-
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        string? result = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Invalid book ID.", result);
     }
 
 

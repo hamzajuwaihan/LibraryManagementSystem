@@ -12,7 +12,7 @@ public class GetAllBooksQueryHandler(IBookRepository bookRepository) : IRequestH
 {
     private readonly IBookRepository _bookRepository = bookRepository;
     /// <summary>
-    /// Handle implemetnation returns all books in DB
+    /// Handle implementation returns all books in DB
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>

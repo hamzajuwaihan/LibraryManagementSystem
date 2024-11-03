@@ -22,6 +22,7 @@ public static class BooksEndPoint
             if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);
 
             Book result = await _mediator.Send(command);
+            
             return Results.Created($"/book/{result.Id}", result);
         })
         .WithTags("Book")
@@ -31,7 +32,6 @@ public static class BooksEndPoint
 
         group.MapGet("{id:Guid}", async (Guid id, IMediator _mediator) =>
         {
-
             GetBookByIdQuery query = new(id);
 
             Book book = await _mediator.Send(query);
@@ -42,17 +42,11 @@ public static class BooksEndPoint
         .Produces<Book>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
 
-
-        group.MapDelete("{id:guid}", async (Guid id, IValidator<DeleteBookCommand> validator, IMediator _mediator) =>
+        group.MapDelete("{id:guid}", async (Guid id,  IMediator _mediator) =>
         {
-            DeleteBookCommand command = new DeleteBookCommand(id);
+            DeleteBookCommand command = new(id);
 
-            ValidationResult validationResult = await validator.ValidateAsync(command);
-
-            if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);
-
-
-            bool result = await _mediator.Send(command);
+            await _mediator.Send(command);
 
             return Results.NoContent();
         })
@@ -93,6 +87,7 @@ public static class BooksEndPoint
         group.MapGet("/borrowed", async (IMediator mediator, int pageNumber = 1, int pageSize = 10) =>
         {
             List<Book> result = await mediator.Send(new GetAllBorrowedBooksQuery() { PageNumber = pageNumber, PageSize = pageSize });
+
             return Results.Ok(result);
         })
         .WithTags("Book");
@@ -101,9 +96,11 @@ public static class BooksEndPoint
         group.MapPatch("/{id}", async (Guid id, PatchBookCommand command, IValidator<PatchBookCommand> validator, IMediator mediator) =>
         {
             ValidationResult validationResult = await validator.ValidateAsync(command);
+            
             if (!validationResult.IsValid) return Results.BadRequest(validationResult.Errors);
 
             Book patchedBook = await mediator.Send(command);
+
             return Results.Ok(patchedBook);
         })
         .WithTags("Book");

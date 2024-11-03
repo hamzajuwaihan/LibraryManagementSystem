@@ -26,9 +26,9 @@ public class GetAllMembersQueryHandlerTests
             new(Guid.NewGuid()) { Name = "Member 2" , Email= "Hamza@gmail.com" }
         };
 
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ReturnsAsync(expectedMembers);
-
         GetAllMembersQuery query = new GetAllMembersQuery();
+
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers(query.PageSize, query.PageNumber)).ReturnsAsync(expectedMembers);
 
         List<Member> result = await _handler.Handle(query, CancellationToken.None);
 
@@ -39,9 +39,9 @@ public class GetAllMembersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenNoMembersExist_ReturnsEmptyList()
     {
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).ReturnsAsync(new List<Member>());
-
         GetAllMembersQuery query = new GetAllMembersQuery();
+
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers(query.PageSize, query.PageNumber)).ReturnsAsync([]);
 
         List<Member> result = await _handler.Handle(query, CancellationToken.None);
 
@@ -52,9 +52,9 @@ public class GetAllMembersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenExceptionThrown_ReturnsNull()
     {
-        _mockMemberRepository.Setup(repo => repo.GetAllMembers()).Throws(new Exception("Database error"));
-
         GetAllMembersQuery query = new GetAllMembersQuery();
+
+        _mockMemberRepository.Setup(repo => repo.GetAllMembers(query.PageSize, query.PageNumber)).Throws(new Exception("Database error"));
 
         await Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
     }

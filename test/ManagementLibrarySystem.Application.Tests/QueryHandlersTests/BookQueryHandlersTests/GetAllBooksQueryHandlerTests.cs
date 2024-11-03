@@ -24,10 +24,10 @@ public class GetAllBooksQueryHandlerTests
         new(Guid.NewGuid()) { Title = "Book 1", Author = "Author 1" },
         new(Guid.NewGuid()) { Title = "Book 2", Author = "Author 2" }
     };
-
-        _mockBookRepository.Setup(repo => repo.GetAllBooks()).ReturnsAsync(books);
-
         GetAllBooksQuery query = new GetAllBooksQuery();
+
+        _mockBookRepository.Setup(repo => repo.GetAllBooks(query.PageSize, query.PageNumber)).ReturnsAsync(books);
+
 
         List<Book> result = await _handler.Handle(query, CancellationToken.None);
 
